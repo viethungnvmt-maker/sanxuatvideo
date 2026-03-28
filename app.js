@@ -1,10 +1,10 @@
 const steps = [
-  { label: "Cau hinh", description: "Brief, audience, duration" },
-  { label: "Kich ban", description: "Narration draft" },
-  { label: "Nhan vat", description: "Character lock" },
-  { label: "Phan canh", description: "Scene planning" },
-  { label: "Prompts", description: "Visual and voice pack" },
-  { label: "Xuat ban", description: "Delivery brief" },
+  { label: "Cau hinh", description: "Cau hinh du an", icon: "&#9881;" },
+  { label: "Kich ban", description: "Tao narration", icon: "&#9998;" },
+  { label: "Nhan vat", description: "Khoa nhan vat", icon: "&#128100;" },
+  { label: "Phan canh", description: "Tach canh quay", icon: "&#127909;" },
+  { label: "Prompts", description: "Dong bo prompts", icon: "&#10024;" },
+  { label: "San xuat", description: "Xuat ban giao", icon: "&#128230;" },
 ];
 
 const durationSecondsMap = {
@@ -22,6 +22,74 @@ const durationSceneCountMap = {
   "90s": 8,
   "120s": 10,
 };
+
+const visualStyleOptions = [
+  "Hoat hinh 3D Pixar",
+  "Motion graphics giao duc",
+  "Cinematic classroom",
+  "2D giao duc hien dai",
+  "Realistic classroom",
+];
+
+const toneOptions = [
+  "Vuot kho va ben bi",
+  "Truyen cam hung",
+  "Gan gui, dong hanh",
+  "Nghiem tuc, hoc thuat",
+];
+
+const formatOptions = ["YouTube (16:9)", "TikTok / Reel (9:16)", "Square (1:1)"];
+
+const narrationModeOptions = ["Tong thuat", "Ke chuyen", "Giai thich bai hoc", "Doi thoai"];
+
+const voiceRegionPresets = [
+  {
+    value: "Mien Bac",
+    summary: "Chuan muc, ro tieng, hop voi giang giai va video can chat hoc thuat.",
+    color: "#6ea8ff",
+  },
+  {
+    value: "Mien Trung",
+    summary: "Am sac mem, can bang, hop noi dung gan gui va tinh huong doi thuong.",
+    color: "#b278ff",
+  },
+  {
+    value: "Mien Nam",
+    summary: "Than thien, de nghe, hop video truyen cam hung va CTA tu nhien.",
+    color: "#ff7a86",
+  },
+];
+
+const videoPlatforms = [
+  {
+    id: "veo3",
+    name: "Veo3",
+    subtitle: "8s clip",
+    summary: "Tot cho doi thoai, cinematic va prompt can bo cuc ro.",
+    color: "#8b3dff",
+  },
+  {
+    id: "sora2",
+    name: "Sora 2",
+    subtitle: "Scene AI",
+    summary: "Linh hoat khi can mo ta canh dai va nhieu chi tiet boi canh.",
+    color: "#52e1a1",
+  },
+  {
+    id: "seedance2",
+    name: "Seedance 2.0",
+    subtitle: "Frame lock",
+    summary: "Manh ve giu bo cuc, layout va nhac nhip chuyen canh.",
+    color: "#ff924a",
+  },
+  {
+    id: "grok-imagine",
+    name: "Grok Imagine",
+    subtitle: "Fast draft",
+    summary: "Nhanh cho viec test y tuong, image concept va phien ban nhap.",
+    color: "#c58eff",
+  },
+];
 
 const characterPresets = [
   {
@@ -74,8 +142,11 @@ const projectPresets = {
     duration: "60s",
     objective: "Tao dong luc hoc tap va ren ky luat ban than",
     tone: "Truyen cam hung",
-    visualStyle: "Cinematic 3D",
-    voice: "Giong nam mien Bac",
+    visualStyle: "Cinematic classroom",
+    voice: "Mien Bac",
+    format: "YouTube (16:9)",
+    narrationMode: "Ke chuyen",
+    videoPlatform: "veo3",
   },
   lesson: {
     topic:
@@ -84,8 +155,11 @@ const projectPresets = {
     duration: "45s",
     objective: "Giup hoc sinh nam nhanh y chinh",
     tone: "Nghiem tuc, hoc thuat",
-    visualStyle: "Motion graphics infographic",
-    voice: "Giong nu mien Bac",
+    visualStyle: "Motion graphics giao duc",
+    voice: "Mien Bac",
+    format: "YouTube (16:9)",
+    narrationMode: "Giai thich bai hoc",
+    videoPlatform: "seedance2",
   },
   cta: {
     topic:
@@ -93,9 +167,12 @@ const projectPresets = {
     audience: "THPT",
     duration: "30s",
     objective: "Keu goi hanh dong ngay lap tuc",
-    tone: "Day nang luong",
-    visualStyle: "Anime truyen cam hung",
-    voice: "Tre trung, nhanh gon",
+    tone: "Vuot kho va ben bi",
+    visualStyle: "Hoat hinh 3D Pixar",
+    voice: "Mien Nam",
+    format: "TikTok / Reel (9:16)",
+    narrationMode: "Tong thuat",
+    videoPlatform: "sora2",
   },
 };
 
@@ -107,12 +184,17 @@ const defaultState = {
   project: {
     apiKey: "",
     topic: "",
-    audience: "THPT",
-    duration: "30s",
-    voice: "Giong nam mien Bac",
+    audience: "THCS",
+    duration: "60s",
+    voice: "Mien Bac",
     objective: "",
-    visualStyle: "Cinematic 3D",
-    tone: "Truyen cam hung",
+    visualStyle: "Hoat hinh 3D Pixar",
+    tone: "Vuot kho va ben bi",
+    format: "YouTube (16:9)",
+    narrationMode: "Tong thuat",
+    videoPlatform: "veo3",
+    scriptUploadName: "",
+    referenceUploadName: "",
   },
   script: {
     title: "",
@@ -137,10 +219,14 @@ let saveTimer = null;
 const elements = {
   saveBadge: document.getElementById("saveBadge"),
   stepper: document.getElementById("stepper"),
+  wizardDock: document.querySelector(".wizard-dock"),
   heroHeadline: document.getElementById("heroHeadline"),
   heroDescription: document.getElementById("heroDescription"),
   heroAudience: document.getElementById("heroAudience"),
   heroDuration: document.getElementById("heroDuration"),
+  heroVoice: document.getElementById("heroVoice"),
+  heroPlatform: document.getElementById("heroPlatform"),
+  footerPlatform: document.getElementById("footerPlatform"),
   heroScenes: document.getElementById("heroScenes"),
   panels: Array.from(document.querySelectorAll(".step-panel")),
   dockStatus: document.getElementById("dockStatus"),
@@ -152,8 +238,18 @@ const elements = {
   objectiveInput: document.getElementById("objectiveInput"),
   toneInput: document.getElementById("toneInput"),
   voiceInput: document.getElementById("voiceInput"),
+  voiceRegionGrid: document.getElementById("voiceRegionGrid"),
   visualStyleInput: document.getElementById("visualStyleInput"),
+  formatInput: document.getElementById("formatInput"),
+  narrationModeInput: document.getElementById("narrationModeInput"),
+  platformGrid: document.getElementById("platformGrid"),
   apiKeyInput: document.getElementById("apiKeyInput"),
+  uploadScriptButton: document.getElementById("uploadScriptButton"),
+  scriptUploadInput: document.getElementById("scriptUploadInput"),
+  scriptUploadStatus: document.getElementById("scriptUploadStatus"),
+  uploadReferenceButton: document.getElementById("uploadReferenceButton"),
+  referenceUploadInput: document.getElementById("referenceUploadInput"),
+  referenceUploadStatus: document.getElementById("referenceUploadStatus"),
   scriptTitleInput: document.getElementById("scriptTitleInput"),
   scriptContentInput: document.getElementById("scriptContentInput"),
   scriptOutline: document.getElementById("scriptOutline"),
@@ -192,6 +288,8 @@ function wireStaticInputs() {
   bindSelectInput(elements.toneInput, ["project", "tone"]);
   bindSelectInput(elements.voiceInput, ["project", "voice"]);
   bindSelectInput(elements.visualStyleInput, ["project", "visualStyle"]);
+  bindSelectInput(elements.formatInput, ["project", "format"]);
+  bindSelectInput(elements.narrationModeInput, ["project", "narrationMode"]);
   bindTextInput(elements.scriptTitleInput, ["script", "title"]);
   bindTextInput(elements.scriptContentInput, ["script", "content"], renderScriptOutline);
   bindTextInput(elements.characterNameInput, ["character", "name"], renderCharacterPreviews);
@@ -228,6 +326,44 @@ function wireActions() {
       applyProjectPreset(button.dataset.projectPreset);
     });
   });
+
+  elements.voiceRegionGrid?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-voice-value]");
+    if (!button) {
+      return;
+    }
+    state.project.voice = button.dataset.voiceValue;
+    elements.voiceInput.value = state.project.voice;
+    scheduleSave();
+    renderGlobalSummary();
+    renderStepper();
+    renderVoiceRegionCards();
+    renderPublishPanel();
+  });
+
+  elements.platformGrid?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-platform-id]");
+    if (!button) {
+      return;
+    }
+    state.project.videoPlatform = button.dataset.platformId;
+    scheduleSave();
+    renderGlobalSummary();
+    renderStepper();
+    renderPlatformCards();
+    renderPublishPanel();
+  });
+
+  elements.uploadScriptButton?.addEventListener("click", () => {
+    elements.scriptUploadInput?.click();
+  });
+
+  elements.uploadReferenceButton?.addEventListener("click", () => {
+    elements.referenceUploadInput?.click();
+  });
+
+  elements.scriptUploadInput?.addEventListener("change", handleScriptUpload);
+  elements.referenceUploadInput?.addEventListener("change", handleReferenceUpload);
 
   document.getElementById("generateScriptButton").addEventListener("click", generateScriptDraft);
   document.getElementById("refineScriptButton").addEventListener("click", refineScriptForVoice);
@@ -352,6 +488,9 @@ function renderAll({ syncInputs = false } = {}) {
   renderPanels();
   renderStepper();
   renderGlobalSummary();
+  renderVoiceRegionCards();
+  renderPlatformCards();
+  renderUploadStatuses();
   renderScriptOutline();
   renderCharacterPreviews();
   renderSceneStats();
@@ -370,6 +509,8 @@ function syncStaticInputs() {
   elements.toneInput.value = state.project.tone;
   elements.voiceInput.value = state.project.voice;
   elements.visualStyleInput.value = state.project.visualStyle;
+  elements.formatInput.value = state.project.format;
+  elements.narrationModeInput.value = state.project.narrationMode;
   elements.scriptTitleInput.value = state.script.title;
   elements.scriptContentInput.value = state.script.content;
   elements.characterNameInput.value = state.character.name;
@@ -386,8 +527,13 @@ function renderPanels() {
   });
   elements.prevStepButton.disabled = state.currentStep === 0;
   elements.nextStepButton.textContent =
-    state.currentStep === steps.length - 1 ? "Hoan tat" : "Tiep tuc";
+    state.currentStep === 0
+      ? "Tiep theo: Tao kich ban"
+      : state.currentStep === steps.length - 1
+        ? "Hoan tat"
+        : "Tiep tuc";
   elements.dockStatus.textContent = `${state.currentStep + 1}/6 | ${steps[state.currentStep].description}`;
+  elements.wizardDock.classList.toggle("is-first-step", state.currentStep === 0);
 }
 
 function renderStepper() {
@@ -396,12 +542,13 @@ function renderStepper() {
     .map((step, index) => {
       const isActive = index === state.currentStep;
       const isComplete = completion[index];
-      const bullet = isComplete ? "OK" : String(index + 1).padStart(2, "0");
+      const bullet = isComplete ? "&#10003;" : step.icon;
       return `
         <button
           class="step-item ${isActive ? "is-active" : ""} ${isComplete ? "is-complete" : ""}"
           type="button"
           data-step-index="${index}"
+          title="${step.description}"
         >
           <span class="step-bullet">${bullet}</span>
           <div>
@@ -416,14 +563,73 @@ function renderStepper() {
 
 function renderGlobalSummary() {
   const topic = state.project.topic.trim();
-  elements.heroHeadline.textContent =
-    state.script.title.trim() || (topic ? truncateText(topic, 64) : "Xuong san xuat video giao duc");
-  elements.heroDescription.textContent = topic
-    ? truncateText(topic, 160)
-    : "Cau hinh de bai, tao kich ban, chon nhan vat, tach canh, tao prompts va xuat goi san xuat trong mot man hinh.";
+  elements.heroHeadline.textContent = topic
+    ? `Brief: ${truncateText(topic, 72)}`
+    : "Brief: Chua nhap chu de";
+  elements.heroDescription.textContent = [
+    state.project.visualStyle,
+    state.project.tone,
+    state.project.format,
+    state.project.narrationMode,
+  ].join(" | ");
   elements.heroAudience.textContent = state.project.audience;
   elements.heroDuration.textContent = state.project.duration;
+  elements.heroVoice.textContent = state.project.voice;
+  elements.heroPlatform.textContent = getPlatformLabel(state.project.videoPlatform);
+  elements.footerPlatform.textContent = getPlatformLabel(state.project.videoPlatform);
   elements.heroScenes.textContent = String(state.scenes.length);
+}
+
+function renderVoiceRegionCards() {
+  elements.voiceRegionGrid.innerHTML = voiceRegionPresets
+    .map((preset) => {
+      const selected = preset.value === state.project.voice;
+      return `
+        <button
+          class="voice-card ${selected ? "is-selected" : ""}"
+          type="button"
+          data-voice-value="${preset.value}"
+        >
+          <div class="voice-card-head">
+            <strong>${preset.value}</strong>
+            <span class="voice-card-dot" style="background:${preset.color};"></span>
+          </div>
+          <p>${preset.summary}</p>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+function renderPlatformCards() {
+  elements.platformGrid.innerHTML = videoPlatforms
+    .map((platform) => {
+      const selected = platform.id === state.project.videoPlatform;
+      return `
+        <button
+          class="platform-card ${selected ? "is-selected" : ""}"
+          type="button"
+          data-platform-id="${platform.id}"
+        >
+          <div class="platform-card-head">
+            <strong>${platform.name}</strong>
+            <span class="platform-card-dot" style="background:${platform.color};"></span>
+          </div>
+          <p>${platform.summary}</p>
+          <span class="platform-card-badge">${platform.subtitle}</span>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+function renderUploadStatuses() {
+  elements.scriptUploadStatus.textContent = state.project.scriptUploadName
+    ? `Da chon: ${state.project.scriptUploadName}`
+    : "Chua chon file.";
+  elements.referenceUploadStatus.textContent = state.project.referenceUploadName
+    ? `Da chon: ${state.project.referenceUploadName}`
+    : "Chua chon tai lieu.";
 }
 
 function renderScriptOutline() {
@@ -660,9 +866,12 @@ function renderPublishPanel() {
     {
       title: "Cau hinh du an",
       ready: Boolean(
-        state.project.topic.trim() && state.project.audience.trim() && state.project.duration.trim()
+        state.project.topic.trim() &&
+          state.project.audience.trim() &&
+          state.project.duration.trim() &&
+          state.project.videoPlatform
       ),
-      description: "Da co chu de, doi tuong va thoi luong muc tieu.",
+      description: "Da co chu de, doi tuong, thoi luong va nen tang tao video.",
     },
     {
       title: "Kich ban",
@@ -703,6 +912,52 @@ function renderPublishPanel() {
     })
     .join("");
   elements.publishPreview.value = buildMarkdownExport();
+}
+
+async function handleScriptUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return;
+  }
+
+  state.project.scriptUploadName = file.name;
+
+  if (isPlainTextFile(file.name)) {
+    try {
+      const importedText = String(await file.text()).replace(/\r\n/g, "\n").trim();
+      if (importedText) {
+        state.script.title = stripFileExtension(file.name);
+        state.script.content = importedText;
+        state.scenes = [];
+        state.prompts = [];
+        if (!state.project.topic.trim()) {
+          state.project.topic = truncateText(importedText.replace(/\s+/g, " "), 180);
+        }
+      }
+      showToast("Da nap noi dung van ban vao buoc Kich ban.");
+    } catch (error) {
+      showToast("Khong doc duoc file nay. Ban co the dan noi dung thu cong.");
+    }
+  } else {
+    showToast("Da ghi nhan file tham chieu. Dinh dang nay hien chua duoc trich text tu dong.");
+  }
+
+  scheduleSave();
+  renderAll({ syncInputs: true });
+  event.target.value = "";
+}
+
+function handleReferenceUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return;
+  }
+  state.project.referenceUploadName = file.name;
+  scheduleSave();
+  renderUploadStatuses();
+  renderPublishPanel();
+  showToast("Da cap nhat tai lieu tham khao cho du an.");
+  event.target.value = "";
 }
 
 function generateScriptDraft() {
@@ -965,6 +1220,11 @@ function buildMarkdownExport() {
     `- Muc tieu: ${safeProject.objective || "_"}`,
     `- Tong noi dung: ${safeProject.tone}`,
     `- Phong cach hinh anh: ${safeProject.visualStyle}`,
+    `- Dinh dang video: ${safeProject.format}`,
+    `- Ngoi ke: ${safeProject.narrationMode}`,
+    `- Nen tang tao video: ${getPlatformLabel(safeProject.videoPlatform)}`,
+    `- File kich ban: ${safeProject.scriptUploadName || "Khong co"}`,
+    `- Tai lieu tham khao: ${safeProject.referenceUploadName || "Khong co"}`,
     `- API key: ${safeProject.apiKey}`,
     "",
     "## 2. Kich ban",
@@ -1025,10 +1285,10 @@ function applyProjectPreset(presetId) {
   if (!preset) {
     return;
   }
-  state.project = {
+  state.project = normalizeProjectState({
     ...state.project,
     ...preset,
-  };
+  });
   scheduleSave();
   renderAll({ syncInputs: true });
   showToast("Da nap nhanh mot preset du an.");
@@ -1088,13 +1348,14 @@ function loadState() {
       return cloneState(defaultState);
     }
     const parsed = JSON.parse(raw);
+    const project = normalizeProjectState({
+      ...defaultState.project,
+      ...(parsed.project || {}),
+    });
     return {
       currentStep: clampNumber(parsed.currentStep, 0, steps.length - 1),
       savedAt: parsed.savedAt || null,
-      project: {
-        ...defaultState.project,
-        ...(parsed.project || {}),
-      },
+      project,
       script: {
         ...defaultState.script,
         ...(parsed.script || {}),
@@ -1151,7 +1412,12 @@ function getCompletionStatus() {
   const profile = getCharacterProfile();
   const promptReady = state.prompts.length > 0 && state.prompts.length === state.scenes.length;
   const base = [
-    Boolean(state.project.topic.trim() && state.project.audience.trim() && state.project.duration.trim()),
+    Boolean(
+      state.project.topic.trim() &&
+        state.project.audience.trim() &&
+        state.project.duration.trim() &&
+        state.project.videoPlatform
+    ),
     Boolean(state.script.content.trim()),
     Boolean(profile.name && profile.appearance),
     Boolean(state.scenes.length),
@@ -1353,6 +1619,62 @@ function redactSecret(secret) {
     return "Khong co";
   }
   return `${secret.slice(0, 4)}********${secret.slice(-2)}`;
+}
+
+function normalizeProjectState(project) {
+  return {
+    ...project,
+    voice: normalizeVoiceValue(project.voice),
+    visualStyle: ensureAllowedValue(project.visualStyle, visualStyleOptions, defaultState.project.visualStyle),
+    tone: ensureAllowedValue(project.tone, toneOptions, defaultState.project.tone),
+    format: ensureAllowedValue(project.format, formatOptions, defaultState.project.format),
+    narrationMode: ensureAllowedValue(
+      project.narrationMode,
+      narrationModeOptions,
+      defaultState.project.narrationMode
+    ),
+    videoPlatform: ensureAllowedValue(
+      project.videoPlatform,
+      videoPlatforms.map((item) => item.id),
+      defaultState.project.videoPlatform
+    ),
+    scriptUploadName: String(project.scriptUploadName || ""),
+    referenceUploadName: String(project.referenceUploadName || ""),
+  };
+}
+
+function normalizeVoiceValue(value) {
+  const normalized = toAsciiSearchText(value);
+  if (normalized.includes("trung tinh") || normalized.includes("tre trung")) {
+    return "Trung tinh";
+  }
+  if (normalized.includes("mien trung") || normalized.includes("trung")) {
+    return "Mien Trung";
+  }
+  if (normalized.includes("mien nam") || normalized.includes("nam")) {
+    return "Mien Nam";
+  }
+  if (normalized.includes("mien bac") || normalized.includes("bac")) {
+    return "Mien Bac";
+  }
+  return defaultState.project.voice;
+}
+
+function ensureAllowedValue(value, allowedValues, fallback) {
+  return allowedValues.includes(value) ? value : fallback;
+}
+
+function getPlatformLabel(platformId) {
+  const platform = videoPlatforms.find((item) => item.id === platformId);
+  return platform ? platform.name : "Veo3";
+}
+
+function isPlainTextFile(filename) {
+  return /\.(txt|md)$/i.test(filename);
+}
+
+function stripFileExtension(filename) {
+  return filename.replace(/\.[^.]+$/, "");
 }
 
 function cloneState(value) {

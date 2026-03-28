@@ -1,10 +1,10 @@
 const steps = [
-  { label: "Cau hinh", description: "Cau hinh du an", icon: "&#9881;" },
-  { label: "Kich ban", description: "Tao narration", icon: "&#9998;" },
-  { label: "Nhan vat", description: "Khoa nhan vat", icon: "&#128100;" },
-  { label: "Phan canh", description: "Tach canh quay", icon: "&#127909;" },
-  { label: "Prompts", description: "Dong bo prompts", icon: "&#10024;" },
-  { label: "San xuat", description: "Xuat ban giao", icon: "&#128230;" },
+  { label: "Cấu hình", description: "Cấu hình dự án", icon: "&#9881;" },
+  { label: "Kịch bản", description: "Tạo lời dẫn", icon: "&#9998;" },
+  { label: "Nhân vật", description: "Khóa nhân vật", icon: "&#128100;" },
+  { label: "Phân cảnh", description: "Tách cảnh quay", icon: "&#127909;" },
+  { label: "Prompts", description: "Đồng bộ prompt", icon: "&#10024;" },
+  { label: "Sản xuất", description: "Xuất bàn giao", icon: "&#128230;" },
 ];
 
 const durationSecondsMap = {
@@ -24,38 +24,38 @@ const durationSceneCountMap = {
 };
 
 const visualStyleOptions = [
-  "Hoat hinh 3D Pixar",
-  "Motion graphics giao duc",
+  "Hoạt hình 3D Pixar",
+  "Motion graphics giáo dục",
   "Cinematic classroom",
-  "2D giao duc hien dai",
+  "2D giáo dục hiện đại",
   "Realistic classroom",
 ];
 
 const toneOptions = [
-  "Vuot kho va ben bi",
-  "Truyen cam hung",
-  "Gan gui, dong hanh",
-  "Nghiem tuc, hoc thuat",
+  "Vượt khó và bền bỉ",
+  "Truyền cảm hứng",
+  "Gần gũi, đồng hành",
+  "Nghiêm túc, học thuật",
 ];
 
-const formatOptions = ["YouTube (16:9)", "TikTok / Reel (9:16)", "Square (1:1)"];
+const formatOptions = ["YouTube (16:9)", "TikTok / Reel (9:16)", "Vuông (1:1)"];
 
-const narrationModeOptions = ["Tong thuat", "Ke chuyen", "Giai thich bai hoc", "Doi thoai"];
+const narrationModeOptions = ["Tường thuật", "Kể chuyện", "Giải thích bài học", "Đối thoại"];
 
 const voiceRegionPresets = [
   {
-    value: "Mien Bac",
-    summary: "Chuan muc, ro tieng, hop voi giang giai va video can chat hoc thuat.",
+    value: "Miền Bắc",
+    summary: "Chuẩn mực, rõ tiếng, hợp với giảng giải và video cần chất học thuật.",
     color: "#6ea8ff",
   },
   {
-    value: "Mien Trung",
-    summary: "Am sac mem, can bang, hop noi dung gan gui va tinh huong doi thuong.",
+    value: "Miền Trung",
+    summary: "Âm sắc mềm, cân bằng, hợp nội dung gần gũi và tình huống đời thường.",
     color: "#b278ff",
   },
   {
-    value: "Mien Nam",
-    summary: "Than thien, de nghe, hop video truyen cam hung va CTA tu nhien.",
+    value: "Miền Nam",
+    summary: "Thân thiện, dễ nghe, hợp video truyền cảm hứng và CTA tự nhiên.",
     color: "#ff7a86",
   },
 ];
@@ -64,29 +64,29 @@ const videoPlatforms = [
   {
     id: "veo3",
     name: "Veo3",
-    subtitle: "8s clip",
-    summary: "Tot cho doi thoai, cinematic va prompt can bo cuc ro.",
+    subtitle: "Clip 8 giây",
+    summary: "Tốt cho đối thoại, cinematic và prompt cần bố cục rõ.",
     color: "#8b3dff",
   },
   {
     id: "sora2",
     name: "Sora 2",
-    subtitle: "Scene AI",
-    summary: "Linh hoat khi can mo ta canh dai va nhieu chi tiet boi canh.",
+    subtitle: "Cảnh AI",
+    summary: "Linh hoạt khi cần mô tả cảnh dài và nhiều chi tiết bối cảnh.",
     color: "#52e1a1",
   },
   {
     id: "seedance2",
     name: "Seedance 2.0",
-    subtitle: "Frame lock",
-    summary: "Manh ve giu bo cuc, layout va nhac nhip chuyen canh.",
+    subtitle: "Khóa khung",
+    summary: "Mạnh về giữ bố cục, layout và nhạc nhịp chuyển cảnh.",
     color: "#ff924a",
   },
   {
     id: "grok-imagine",
     name: "Grok Imagine",
-    subtitle: "Fast draft",
-    summary: "Nhanh cho viec test y tuong, image concept va phien ban nhap.",
+    subtitle: "Nháp nhanh",
+    summary: "Nhanh cho việc test ý tưởng, concept hình ảnh và phiên bản nháp.",
     color: "#c58eff",
   },
 ];
@@ -94,84 +94,84 @@ const videoPlatforms = [
 const characterPresets = [
   {
     id: "teacher",
-    name: "Thay co truyen cam hung",
-    role: "nguoi huong dan giao duc",
-    appearance: "ngoai hinh thanh lich, than thai dien dam, anh mat am ap va tap trung",
-    outfit: "ao so mi sang mau, blazer toi gian, tai lieu hoc tap tren tay",
-    personality: "am ap, ro rang, tao niem tin",
-    voiceStyle: "dien dam, huong dan, de nghe",
-    summary: "Phu hop video bai giang ngan, tong hop kien thuc va motivator cho hoc sinh.",
+    name: "Thầy cô truyền cảm hứng",
+    role: "người hướng dẫn giáo dục",
+    appearance: "ngoại hình thanh lịch, thần thái điềm đạm, ánh mắt ấm áp và tập trung",
+    outfit: "áo sơ mi sáng màu, blazer tối giản, tài liệu học tập trên tay",
+    personality: "ấm áp, rõ ràng, tạo niềm tin",
+    voiceStyle: "điềm đạm, hướng dẫn, dễ nghe",
+    summary: "Phù hợp video bài giảng ngắn, tổng hợp kiến thức và motivator cho học sinh.",
   },
   {
     id: "student",
-    name: "Hoc sinh vuot kho",
-    role: "hoc sinh dang no luc thay doi",
-    appearance: "guong mat tre, mat sang, dieu bo co chut hoi hop nhung kien dinh",
-    outfit: "dong phuc hoc sinh gon gang, ba lo, sach vo va but ghi chu",
-    personality: "cham chi, kien tri, de dong cam",
-    voiceStyle: "chan that, gan gui, tao dong luc",
-    summary: "Tot cho storytelling hanh trinh hoc tap, ky luat va dat muc tieu.",
+    name: "Học sinh vượt khó",
+    role: "học sinh đang nỗ lực thay đổi",
+    appearance: "gương mặt trẻ, mắt sáng, điệu bộ có chút hồi hộp nhưng kiên định",
+    outfit: "đồng phục học sinh gọn gàng, ba lô, sách vở và bút ghi chú",
+    personality: "chăm chỉ, kiên trì, dễ đồng cảm",
+    voiceStyle: "chân thật, gần gũi, tạo động lực",
+    summary: "Tốt cho storytelling hành trình học tập, kỷ luật và đạt mục tiêu.",
   },
   {
     id: "mentor",
-    name: "Nguoi co van",
-    role: "mentor dong hanh",
-    appearance: "trung nien, net mat thong thai, nhin chuyen nghiep va tin cay",
-    outfit: "ao polo toi gian, dong ho, bang ghi chu hoac tablet",
-    personality: "binh tinh, logic, truyen lua",
-    voiceStyle: "diem tinh, thong thai, co suc nang do",
-    summary: "Hop voi video dinh huong, ky nang song, ren ky luat hoc tap.",
+    name: "Người cố vấn",
+    role: "cố vấn đồng hành",
+    appearance: "trung niên, nét mặt thông thái, nhìn chuyên nghiệp và tin cậy",
+    outfit: "áo polo tối giản, đồng hồ, bảng ghi chú hoặc tablet",
+    personality: "bình tĩnh, logic, truyền lửa",
+    voiceStyle: "điềm tĩnh, thông thái, có sức nâng đỡ",
+    summary: "Hợp với video định hướng, kỹ năng sống, rèn kỷ luật học tập.",
   },
   {
     id: "mc",
-    name: "MC giao duc",
-    role: "nguoi dan chuong trinh",
-    appearance: "tre trung, bieu cam ro, guong mat sang san va gan ong kinh",
-    outfit: "ao khoac smart-casual, tone mau hien dai, tai nghe mini",
-    personality: "nhiet huyet, nhanh gon, cuon hut",
-    voiceStyle: "nang luong, nhip nhanh, ro tung cum y",
-    summary: "Tot cho short-form, video mang tinh lan truyen, tong hop thong tin nhanh.",
+    name: "MC giáo dục",
+    role: "người dẫn chương trình",
+    appearance: "trẻ trung, biểu cảm rõ, gương mặt sáng sân và gần ống kính",
+    outfit: "áo khoác smart-casual, tông màu hiện đại, tai nghe mini",
+    personality: "nhiệt huyết, nhanh gọn, cuốn hút",
+    voiceStyle: "năng lượng, nhịp nhanh, rõ từng cụm ý",
+    summary: "Tốt cho short-form, video mang tính lan truyền, tổng hợp thông tin nhanh.",
   },
 ];
 
 const projectPresets = {
   story: {
     topic:
-      "Hanh trinh hoc tap cham chi cua mot ban hoc sinh gap kho khan nhung van kien tri va dat thanh cong, truyen cam hung cho hoc sinh THPT.",
+      "Hành trình học tập chăm chỉ của một bạn học sinh gặp khó khăn nhưng vẫn kiên trì và đạt thành công, truyền cảm hứng cho học sinh THPT.",
     audience: "THPT",
     duration: "60s",
-    objective: "Tao dong luc hoc tap va ren ky luat ban than",
-    tone: "Truyen cam hung",
+    objective: "Tạo động lực học tập và rèn kỷ luật bản thân",
+    tone: "Truyền cảm hứng",
     visualStyle: "Cinematic classroom",
-    voice: "Mien Bac",
+    voice: "Miền Bắc",
     format: "YouTube (16:9)",
-    narrationMode: "Ke chuyen",
+    narrationMode: "Kể chuyện",
     videoPlatform: "veo3",
   },
   lesson: {
     topic:
-      "Tom tat mot bai hoc ngan gon, ro rang, de nho, co vi du thuc te va ket thuc bang 3 y chinh can nho.",
+      "Tóm tắt một bài học ngắn gọn, rõ ràng, dễ nhớ, có ví dụ thực tế và kết thúc bằng 3 ý chính cần nhớ.",
     audience: "THCS",
     duration: "45s",
-    objective: "Giup hoc sinh nam nhanh y chinh",
-    tone: "Nghiem tuc, hoc thuat",
-    visualStyle: "Motion graphics giao duc",
-    voice: "Mien Bac",
+    objective: "Giúp học sinh nắm nhanh ý chính",
+    tone: "Nghiêm túc, học thuật",
+    visualStyle: "Motion graphics giáo dục",
+    voice: "Miền Bắc",
     format: "YouTube (16:9)",
-    narrationMode: "Giai thich bai hoc",
+    narrationMode: "Giải thích bài học",
     videoPlatform: "seedance2",
   },
   cta: {
     topic:
-      "Video keu goi hoc sinh bat dau hanh dong nho ngay hom nay de cai thien ket qua hoc tap trong 30 ngay toi.",
+      "Video kêu gọi học sinh bắt đầu hành động nhỏ ngay hôm nay để cải thiện kết quả học tập trong 30 ngày tới.",
     audience: "THPT",
     duration: "30s",
-    objective: "Keu goi hanh dong ngay lap tuc",
-    tone: "Vuot kho va ben bi",
-    visualStyle: "Hoat hinh 3D Pixar",
-    voice: "Mien Nam",
+    objective: "Kêu gọi hành động ngay lập tức",
+    tone: "Vượt khó và bền bỉ",
+    visualStyle: "Hoạt hình 3D Pixar",
+    voice: "Miền Nam",
     format: "TikTok / Reel (9:16)",
-    narrationMode: "Tong thuat",
+    narrationMode: "Tường thuật",
     videoPlatform: "sora2",
   },
 };
@@ -186,12 +186,12 @@ const defaultState = {
     topic: "",
     audience: "THCS",
     duration: "60s",
-    voice: "Mien Bac",
+    voice: "Miền Bắc",
     objective: "",
-    visualStyle: "Hoat hinh 3D Pixar",
-    tone: "Vuot kho va ben bi",
+    visualStyle: "Hoạt hình 3D Pixar",
+    tone: "Vượt khó và bền bỉ",
     format: "YouTube (16:9)",
-    narrationMode: "Tong thuat",
+    narrationMode: "Tường thuật",
     videoPlatform: "veo3",
     scriptUploadName: "",
     referenceUploadName: "",
@@ -375,18 +375,18 @@ function wireActions() {
   document
     .getElementById("copyMasterPromptButton")
     .addEventListener("click", () =>
-      copyText(buildMasterCharacterPrompt(), "Da sao chep prompt nhan vat.")
+      copyText(buildMasterCharacterPrompt(), "Đã sao chép prompt nhân vật.")
     );
   document.getElementById("exportJsonButton").addEventListener("click", exportJson);
   document.getElementById("exportMarkdownButton").addEventListener("click", exportMarkdown);
   document
     .getElementById("copyBriefButton")
     .addEventListener("click", () =>
-      copyText(buildMarkdownExport(), "Da sao chep production brief.")
+      copyText(buildMarkdownExport(), "Đã sao chép brief sản xuất.")
     );
   document.getElementById("refreshBriefButton").addEventListener("click", () => {
     renderPublishPanel();
-    showToast("Da lam moi preview xuat ban.");
+    showToast("Đã làm mới preview xuất bản.");
   });
 
   elements.prevStepButton.addEventListener("click", () => {
@@ -395,7 +395,7 @@ function wireActions() {
   elements.nextStepButton.addEventListener("click", () => {
     if (state.currentStep === steps.length - 1) {
       renderPublishPanel();
-      showToast("Goi san xuat da san sang de ban xuat file.");
+      showToast("Gói sản xuất đã sẵn sàng để bạn xuất file.");
       return;
     }
     setStep(Math.min(steps.length - 1, state.currentStep + 1));
@@ -528,10 +528,10 @@ function renderPanels() {
   elements.prevStepButton.disabled = state.currentStep === 0;
   elements.nextStepButton.textContent =
     state.currentStep === 0
-      ? "Tiep theo: Tao kich ban"
+      ? "Tiếp theo: Tạo kịch bản"
       : state.currentStep === steps.length - 1
-        ? "Hoan tat"
-        : "Tiep tuc";
+        ? "Hoàn tất"
+        : "Tiếp tục";
   elements.dockStatus.textContent = `${state.currentStep + 1}/6 | ${steps[state.currentStep].description}`;
   elements.wizardDock.classList.toggle("is-first-step", state.currentStep === 0);
 }
@@ -565,7 +565,7 @@ function renderGlobalSummary() {
   const topic = state.project.topic.trim();
   elements.heroHeadline.textContent = topic
     ? `Brief: ${truncateText(topic, 72)}`
-    : "Brief: Chua nhap chu de";
+    : "Brief: Chưa nhập chủ đề";
   elements.heroDescription.textContent = [
     state.project.visualStyle,
     state.project.tone,
@@ -625,11 +625,11 @@ function renderPlatformCards() {
 
 function renderUploadStatuses() {
   elements.scriptUploadStatus.textContent = state.project.scriptUploadName
-    ? `Da chon: ${state.project.scriptUploadName}`
-    : "Chua chon file.";
+    ? `Đã chọn: ${state.project.scriptUploadName}`
+    : "Chưa chọn file.";
   elements.referenceUploadStatus.textContent = state.project.referenceUploadName
-    ? `Da chon: ${state.project.referenceUploadName}`
-    : "Chua chon tai lieu.";
+    ? `Đã chọn: ${state.project.referenceUploadName}`
+    : "Chưa chọn tài liệu.";
 }
 
 function renderScriptOutline() {
@@ -637,7 +637,7 @@ function renderScriptOutline() {
   if (!paragraphs.length) {
     elements.scriptOutline.innerHTML = `
       <div class="empty-state">
-        Kich ban chua co noi dung. Ban co the tao kich ban mau tu brief o buoc 1.
+        Kịch bản chưa có nội dung. Bạn có thể tạo kịch bản mẫu từ brief ở bước 1.
       </div>
     `;
     return;
@@ -676,11 +676,11 @@ function renderCharacterPreviews() {
 
   elements.characterPromptPreview.textContent = buildMasterCharacterPrompt();
   elements.masterPromptPreview.textContent = [
-    `Visual style: ${state.project.visualStyle}.`,
-    `Character lock: ${profile.name}, ${profile.role}, ${profile.appearance}.`,
-    `Wardrobe and props: ${profile.outfit}.`,
-    `Mood and performance: ${profile.personality}, voice vibe ${profile.voiceStyle}.`,
-    `Use the same face, costume and proportions consistently across every scene.`,
+    `Phong cách hình ảnh: ${state.project.visualStyle}.`,
+    `Khóa nhân vật: ${profile.name}, ${profile.role}, ${profile.appearance}.`,
+    `Trang phục và đạo cụ: ${profile.outfit}.`,
+    `Cảm xúc và phong thái: ${profile.personality}, chất giọng ${profile.voiceStyle}.`,
+    `Giữ cùng một gương mặt, trang phục và tỷ lệ cơ thể xuyên suốt mọi cảnh.`,
   ].join(" ");
 }
 
@@ -689,28 +689,28 @@ function renderSceneStats() {
   const currentDuration = state.scenes.reduce((sum, scene) => sum + Number(scene.duration || 0), 0);
   const statusText =
     state.scenes.length === 0
-      ? "Chua co canh"
+      ? "Chưa có cảnh"
       : currentDuration === targetDuration
-        ? "Da khop thoi luong"
+        ? "Đã khớp thời lượng"
         : currentDuration > targetDuration
-          ? "Vuot thoi luong"
-          : "Con thieu thoi luong";
+          ? "Vượt thời lượng"
+          : "Còn thiếu thời lượng";
 
   elements.sceneStats.innerHTML = `
     <article class="stat-pill">
-      <span>Canh hien tai</span>
+      <span>Cảnh hiện tại</span>
       <strong>${state.scenes.length}</strong>
     </article>
     <article class="stat-pill">
-      <span>Thoi luong muc tieu</span>
+      <span>Thời lượng mục tiêu</span>
       <strong>${targetDuration}s</strong>
     </article>
     <article class="stat-pill">
-      <span>Cong don canh</span>
+      <span>Cộng dồn cảnh</span>
       <strong>${currentDuration}s</strong>
     </article>
     <article class="stat-pill">
-      <span>Trang thai</span>
+      <span>Trạng thái</span>
       <strong>${statusText}</strong>
     </article>
   `;
@@ -720,7 +720,7 @@ function renderSceneList() {
   if (!state.scenes.length) {
     elements.sceneList.innerHTML = `
       <div class="empty-state">
-        Chua co phan canh. Hay tao kich ban truoc, sau do bam "Tach canh tu dong".
+        Chưa có phân cảnh. Hãy tạo kịch bản trước, sau đó bấm "Tách cảnh tự động".
       </div>
     `;
     return;
@@ -732,24 +732,24 @@ function renderSceneList() {
         <article class="scene-card">
           <div class="scene-card-head">
             <div>
-              <p>Canh ${index + 1}</p>
-              <h3>${escapeHtml(scene.title || `Canh ${index + 1}`)}</h3>
+              <p>Cảnh ${index + 1}</p>
+              <h3>${escapeHtml(scene.title || `Cảnh ${index + 1}`)}</h3>
             </div>
             <button class="remove-button" type="button" data-remove-scene="${scene.id}">
-              Xoa
+              Xóa
             </button>
           </div>
 
           <div class="grid-layout two-columns">
             <label class="field">
-              <span>Tieu de canh</span>
+              <span>Tiêu đề cảnh</span>
               <input data-scene-input="title" data-scene-id="${scene.id}" value="${escapeAttribute(
                 scene.title
               )}" />
             </label>
 
             <label class="field">
-              <span>Trong tam thi giac</span>
+              <span>Trọng tâm thị giác</span>
               <input data-scene-input="visual" data-scene-id="${scene.id}" value="${escapeAttribute(
                 scene.visual
               )}" />
@@ -757,7 +757,7 @@ function renderSceneList() {
           </div>
 
           <label class="field">
-            <span>Loi thoai / noi dung canh</span>
+            <span>Lời thoại / nội dung cảnh</span>
             <textarea data-scene-input="narration" data-scene-id="${scene.id}" rows="4">${escapeHtml(
               scene.narration
             )}</textarea>
@@ -772,14 +772,14 @@ function renderSceneList() {
             </label>
 
             <label class="field">
-              <span>Transition</span>
+              <span>Chuyển cảnh</span>
               <input data-scene-input="transition" data-scene-id="${scene.id}" value="${escapeAttribute(
                 scene.transition
               )}" />
             </label>
 
             <label class="field">
-              <span>Thoi luong (s)</span>
+              <span>Thời lượng (s)</span>
               <input
                 data-scene-input="duration"
                 data-scene-id="${scene.id}"
@@ -800,7 +800,7 @@ function renderPromptList() {
   if (!state.prompts.length) {
     elements.promptList.innerHTML = `
       <div class="empty-state">
-        Chua co prompt. Sau khi da co phan canh, hay bam "Tao prompts cho tat ca canh".
+        Chưa có prompt. Sau khi đã có phân cảnh, hãy bấm "Tạo prompt cho tất cả cảnh".
       </div>
     `;
     return;
@@ -809,25 +809,25 @@ function renderPromptList() {
   elements.promptList.innerHTML = state.prompts
     .map((prompt, index) => {
       const scene = state.scenes.find((item) => item.id === prompt.sceneId);
-      const sceneTitle = scene ? scene.title : `Canh ${index + 1}`;
+      const sceneTitle = scene ? scene.title : `Cảnh ${index + 1}`;
       return `
         <article class="prompt-card">
           <div class="prompt-card-head">
             <div>
-              <p>Prompt pack ${index + 1}</p>
+              <p>Gói prompt ${index + 1}</p>
               <h3>${escapeHtml(sceneTitle)}</h3>
             </div>
           </div>
 
           <label class="field">
-            <span>Image / video prompt</span>
+            <span>Prompt ảnh / video</span>
             <textarea data-prompt-input="image" data-scene-id="${prompt.sceneId}" rows="4">${escapeHtml(
               prompt.image
             )}</textarea>
           </label>
 
           <label class="field">
-            <span>Motion prompt</span>
+            <span>Prompt chuyển động</span>
             <textarea data-prompt-input="motion" data-scene-id="${prompt.sceneId}" rows="3">${escapeHtml(
               prompt.motion
             )}</textarea>
@@ -835,14 +835,14 @@ function renderPromptList() {
 
           <div class="grid-layout two-columns">
             <label class="field">
-              <span>Voice-over prompt</span>
+              <span>Prompt lời thoại</span>
               <textarea data-prompt-input="voice" data-scene-id="${prompt.sceneId}" rows="4">${escapeHtml(
                 prompt.voice
               )}</textarea>
             </label>
 
             <label class="field">
-              <span>Subtitle cue</span>
+              <span>Gợi ý phụ đề</span>
               <textarea data-prompt-input="subtitle" data-scene-id="${prompt.sceneId}" rows="4">${escapeHtml(
                 prompt.subtitle
               )}</textarea>
@@ -850,7 +850,7 @@ function renderPromptList() {
           </div>
 
           <label class="field">
-            <span>Negative prompt</span>
+            <span>Prompt loại trừ</span>
             <textarea data-prompt-input="negative" data-scene-id="${prompt.sceneId}" rows="3">${escapeHtml(
               prompt.negative
             )}</textarea>
@@ -864,41 +864,41 @@ function renderPromptList() {
 function renderPublishPanel() {
   const checklist = [
     {
-      title: "Cau hinh du an",
+      title: "Cấu hình dự án",
       ready: Boolean(
         state.project.topic.trim() &&
           state.project.audience.trim() &&
           state.project.duration.trim() &&
           state.project.videoPlatform
       ),
-      description: "Da co chu de, doi tuong, thoi luong va nen tang tao video.",
+      description: "Đã có chủ đề, đối tượng, thời lượng và nền tảng tạo video.",
     },
     {
-      title: "Kich ban",
+      title: "Kịch bản",
       ready: Boolean(state.script.content.trim()),
-      description: "Da co narration de chuyen sang phan canh.",
+      description: "Đã có lời dẫn để chuyển sang phân cảnh.",
     },
     {
-      title: "Nhan vat",
+      title: "Nhân vật",
       ready: Boolean(getCharacterProfile().name && getCharacterProfile().appearance),
-      description: "Da khoa profile nhan vat va phong thai.",
+      description: "Đã khóa hồ sơ nhân vật và phong thái.",
     },
     {
-      title: "Phan canh",
+      title: "Phân cảnh",
       ready: state.scenes.length > 0,
-      description: "Da co danh sach canh kem thoi luong va bo canh.",
+      description: "Đã có danh sách cảnh kèm thời lượng và bối cảnh.",
     },
     {
-      title: "Prompt pack",
+      title: "Gói prompt",
       ready: state.prompts.length > 0 && state.prompts.length === state.scenes.length,
-      description: "Da co prompt hinh anh, motion, voice va subtitle.",
+      description: "Đã có prompt hình ảnh, chuyển động, giọng đọc và phụ đề.",
     },
   ];
 
   const readyCount = checklist.filter((item) => item.ready).length;
   const percentage = Math.round((readyCount / checklist.length) * 100);
   elements.readinessBar.style.width = `${percentage}%`;
-  elements.readinessCopy.textContent = `${readyCount}/${checklist.length} hang muc da san sang. ${productionMessage(
+  elements.readinessCopy.textContent = `${readyCount}/${checklist.length} hạng mục đã sẵn sàng. ${productionMessage(
     readyCount
   )}`;
   elements.readinessChecklist.innerHTML = checklist
@@ -934,12 +934,12 @@ async function handleScriptUpload(event) {
           state.project.topic = truncateText(importedText.replace(/\s+/g, " "), 180);
         }
       }
-      showToast("Da nap noi dung van ban vao buoc Kich ban.");
+      showToast("Đã nạp nội dung văn bản vào bước Kịch bản.");
     } catch (error) {
-      showToast("Khong doc duoc file nay. Ban co the dan noi dung thu cong.");
+      showToast("Không đọc được file này. Bạn có thể dán nội dung thủ công.");
     }
   } else {
-    showToast("Da ghi nhan file tham chieu. Dinh dang nay hien chua duoc trich text tu dong.");
+    showToast("Đã ghi nhận file tham chiếu. Định dạng này hiện chưa được trích text tự động.");
   }
 
   scheduleSave();
@@ -956,13 +956,13 @@ function handleReferenceUpload(event) {
   scheduleSave();
   renderUploadStatuses();
   renderPublishPanel();
-  showToast("Da cap nhat tai lieu tham khao cho du an.");
+  showToast("Đã cập nhật tài liệu tham khảo cho dự án.");
   event.target.value = "";
 }
 
 function generateScriptDraft() {
   if (!state.project.topic.trim()) {
-    showToast("Hay nhap chu de truoc khi tao kich ban.");
+    showToast("Hãy nhập chủ đề trước khi tạo kịch bản.");
     setStep(0);
     elements.topicInput.focus();
     return;
@@ -970,18 +970,18 @@ function generateScriptDraft() {
 
   const beatCount = durationSceneCountMap[state.project.duration] || 6;
   const topic = cleanupSentence(state.project.topic);
-  const objective = cleanupSentence(state.project.objective || "truyen cam hung va tao hanh dong cu the");
+  const objective = cleanupSentence(state.project.objective || "truyền cảm hứng và tạo hành động cụ thể");
   const audience = state.project.audience.toLowerCase();
   const tone = state.project.tone.toLowerCase();
 
   const beatBank = [
-    `Mo dau bang mot cau hoi hoac mot tinh huong sat voi ${audience}: ${topic}.`,
-    `Nhan vat trung tam xuat hien trong boi canh hoc tap quen thuoc, mang theo mot noi lo rat doi thuong nhung cung rat de dong cam.`,
-    `Cau chuyen day nhanh vao thu thach chinh. Nhung luc muon bo cuoc, nhan vat van chon tiep tuc va giu ky luat moi ngay.`,
-    `Moi no luc nho duoc tich luy thanh thay doi ro rang. Nhan vat biet tim su ho tro, tu dieu chinh cach hoc va nhin lai muc tieu.`,
-    `Khoanh khac but pha den khi ket qua dau tien xuat hien: su tu tin, su tien bo va niem tin rang co gang dung cach se tao ket qua.`,
-    `Thong diep giao duc duoc cham lai: ${objective}. Noi dung duoc giu chat giong ${tone} va de nho.`,
-    `Ket lai bang mot loi keu goi hanh dong ngan gon, ro rang, phu hop voi ${audience}.`,
+    `Mở đầu bằng một câu hỏi hoặc một tình huống sát với ${audience}: ${topic}.`,
+    `Nhân vật trung tâm xuất hiện trong bối cảnh học tập quen thuộc, mang theo một nỗi lo rất đời thường nhưng cũng rất dễ đồng cảm.`,
+    `Câu chuyện đẩy nhanh vào thử thách chính. Những lúc muốn bỏ cuộc, nhân vật vẫn chọn tiếp tục và giữ kỷ luật mỗi ngày.`,
+    `Mỗi nỗ lực nhỏ được tích lũy thành thay đổi rõ ràng. Nhân vật biết tìm sự hỗ trợ, tự điều chỉnh cách học và nhìn lại mục tiêu.`,
+    `Khoảnh khắc bứt phá đến khi kết quả đầu tiên xuất hiện: sự tự tin, sự tiến bộ và niềm tin rằng cố gắng đúng cách sẽ tạo kết quả.`,
+    `Thông điệp giáo dục được chạm lại: ${objective}. Nội dung được giữ chất giọng ${tone} và dễ nhớ.`,
+    `Kết lại bằng một lời kêu gọi hành động ngắn gọn, rõ ràng, phù hợp với ${audience}.`,
   ];
 
   const selectedBeats = beatBank.slice(0, Math.max(4, Math.min(beatCount, beatBank.length)));
@@ -992,12 +992,12 @@ function generateScriptDraft() {
   scheduleSave();
   renderAll({ syncInputs: true });
   setStep(1);
-  showToast("Da tao kich ban mau tu brief hien tai.");
+  showToast("Đã tạo kịch bản mẫu từ brief hiện tại.");
 }
 
 function refineScriptForVoice() {
   if (!state.script.content.trim()) {
-    showToast("Chua co kich ban de chuan hoa.");
+    showToast("Chưa có kịch bản để chuẩn hóa.");
     return;
   }
 
@@ -1005,7 +1005,7 @@ function refineScriptForVoice() {
   state.script.content = sentences.map((sentence) => sentence.trim()).join("\n\n");
   scheduleSave();
   renderAll({ syncInputs: true });
-  showToast("Da chuan hoa kich ban thanh nhip doc de nghe hon.");
+  showToast("Đã chuẩn hóa kịch bản thành nhịp đọc dễ nghe hơn.");
 }
 
 function clearScript() {
@@ -1014,12 +1014,12 @@ function clearScript() {
   state.prompts = [];
   scheduleSave();
   renderAll({ syncInputs: true });
-  showToast("Da xoa kich ban va cac du lieu phu thuoc.");
+  showToast("Đã xóa kịch bản và các dữ liệu phụ thuộc.");
 }
 
 function generateScenesFromScript() {
   if (!state.script.content.trim()) {
-    showToast("Hay tao kich ban truoc khi phan tach canh.");
+    showToast("Hãy tạo kịch bản trước khi phân tách cảnh.");
     setStep(1);
     return;
   }
@@ -1044,7 +1044,7 @@ function generateScenesFromScript() {
       id: createId("scene"),
       title: inferSceneTitle(chunk, index),
       narration: chunk,
-      visual: `${profile.name}, ${profile.role}, ${state.project.visualStyle}, boi canh lien quan ${keywords || "chu de chinh"}`,
+      visual: `${profile.name}, ${profile.role}, ${state.project.visualStyle}, bối cảnh liên quan ${keywords || "chủ đề chính"}`,
       camera: cameraPresets[index % cameraPresets.length],
       transition: transitionPresets[index % transitionPresets.length],
       duration: durations[index],
@@ -1054,12 +1054,12 @@ function generateScenesFromScript() {
   scheduleSave();
   renderAll();
   setStep(3);
-  showToast("Da tach kich ban thanh cac canh co thoi luong.");
+  showToast("Đã tách kịch bản thành các cảnh có thời lượng.");
 }
 
 function rebalanceScenes() {
   if (!state.scenes.length) {
-    showToast("Chua co canh de can bang thoi luong.");
+    showToast("Chưa có cảnh để cân bằng thời lượng.");
     return;
   }
 
@@ -1069,16 +1069,16 @@ function rebalanceScenes() {
   renderSceneStats();
   renderSceneList();
   renderPublishPanel();
-  showToast("Da can lai thoi luong tat ca canh.");
+  showToast("Đã cân lại thời lượng tất cả cảnh.");
 }
 
 function addScene() {
   const profile = getCharacterProfile();
   state.scenes.push({
     id: createId("scene"),
-    title: `Canh ${state.scenes.length + 1}`,
-    narration: "Bo sung loi thoai hoac mo ta noi dung canh tai day.",
-    visual: `${profile.name}, ${state.project.visualStyle}, boi canh giao duc`,
+    title: `Cảnh ${state.scenes.length + 1}`,
+    narration: "Bổ sung lời thoại hoặc mô tả nội dung cảnh tại đây.",
+    visual: `${profile.name}, ${state.project.visualStyle}, bối cảnh giáo dục`,
     camera: "Medium shot",
     transition: "Cut",
     duration: 5,
@@ -1089,7 +1089,7 @@ function addScene() {
   renderSceneList();
   renderPromptList();
   renderPublishPanel();
-  showToast("Da them mot canh moi.");
+  showToast("Đã thêm một cảnh mới.");
 }
 
 function removeScene(sceneId) {
@@ -1101,12 +1101,12 @@ function removeScene(sceneId) {
   renderPromptList();
   renderStepper();
   renderPublishPanel();
-  showToast("Da xoa canh.");
+  showToast("Đã xóa cảnh.");
 }
 
 function generatePromptPack() {
   if (!state.scenes.length) {
-    showToast("Hay tao phan canh truoc khi tao prompts.");
+    showToast("Hãy tạo phân cảnh trước khi tạo prompt.");
     setStep(3);
     return;
   }
@@ -1148,18 +1148,18 @@ function generatePromptPack() {
   renderStepper();
   renderPublishPanel();
   setStep(4);
-  showToast("Da tao prompt pack cho toan bo phan canh.");
+  showToast("Đã tạo gói prompt cho toàn bộ phân cảnh.");
 }
 
 function exportJson() {
   const payload = buildExportPayload();
   downloadFile("video-ai-production.json", JSON.stringify(payload, null, 2), "application/json");
-  showToast("Da tai goi JSON.");
+  showToast("Đã tải gói JSON.");
 }
 
 function exportMarkdown() {
   downloadFile("video-ai-production.md", buildMarkdownExport(), "text/markdown");
-  showToast("Da tai file Markdown.");
+  showToast("Đã tải file Markdown.");
 }
 
 function buildExportPayload() {
@@ -1183,70 +1183,70 @@ function buildMarkdownExport() {
     ? state.scenes
         .map((scene, index) => {
           return [
-            `### Canh ${index + 1}: ${scene.title}`,
-            `- Thoi luong: ${scene.duration}s`,
-            `- Visual: ${scene.visual}`,
+            `### Cảnh ${index + 1}: ${scene.title}`,
+            `- Thời lượng: ${scene.duration}s`,
+            `- Hình ảnh: ${scene.visual}`,
             `- Camera: ${scene.camera}`,
-            `- Transition: ${scene.transition}`,
-            `- Narration: ${scene.narration}`,
+            `- Chuyển cảnh: ${scene.transition}`,
+            `- Lời dẫn: ${scene.narration}`,
           ].join("\n");
         })
         .join("\n\n")
-    : "_Chua co phan canh_";
+    : "_Chưa có phân cảnh_";
 
   const promptBlock = state.prompts.length
     ? state.prompts
         .map((prompt, index) => {
           return [
             `### Prompt ${index + 1}`,
-            `- Image: ${prompt.image}`,
-            `- Motion: ${prompt.motion}`,
-            `- Voice: ${prompt.voice}`,
-            `- Subtitle: ${prompt.subtitle}`,
-            `- Negative: ${prompt.negative}`,
+            `- Hình ảnh: ${prompt.image}`,
+            `- Chuyển động: ${prompt.motion}`,
+            `- Giọng đọc: ${prompt.voice}`,
+            `- Phụ đề: ${prompt.subtitle}`,
+            `- Negative prompt: ${prompt.negative}`,
           ].join("\n");
         })
         .join("\n\n")
-    : "_Chua co prompt pack_";
+    : "_Chưa có gói prompt_";
 
   return [
-    `# ${state.script.title.trim() || "Production Brief Video Giao Duc AI"}`,
+    `# ${state.script.title.trim() || "Brief Sản Xuất Video Giáo Dục AI"}`,
     "",
-    "## 1. Cau hinh du an",
-    `- Chu de: ${safeProject.topic || "_"}`,
-    `- Doi tuong: ${safeProject.audience}`,
-    `- Thoi luong: ${safeProject.duration}`,
-    `- Giong doc: ${safeProject.voice}`,
-    `- Muc tieu: ${safeProject.objective || "_"}`,
-    `- Tong noi dung: ${safeProject.tone}`,
-    `- Phong cach hinh anh: ${safeProject.visualStyle}`,
-    `- Dinh dang video: ${safeProject.format}`,
-    `- Ngoi ke: ${safeProject.narrationMode}`,
-    `- Nen tang tao video: ${getPlatformLabel(safeProject.videoPlatform)}`,
-    `- File kich ban: ${safeProject.scriptUploadName || "Khong co"}`,
-    `- Tai lieu tham khao: ${safeProject.referenceUploadName || "Khong co"}`,
+    "## 1. Cấu hình dự án",
+    `- Chủ đề: ${safeProject.topic || "_"}`,
+    `- Đối tượng: ${safeProject.audience}`,
+    `- Thời lượng: ${safeProject.duration}`,
+    `- Giọng đọc: ${safeProject.voice}`,
+    `- Mục tiêu: ${safeProject.objective || "_"}`,
+    `- Tông nội dung: ${safeProject.tone}`,
+    `- Phong cách hình ảnh: ${safeProject.visualStyle}`,
+    `- Định dạng video: ${safeProject.format}`,
+    `- Ngôi kể: ${safeProject.narrationMode}`,
+    `- Nền tảng tạo video: ${getPlatformLabel(safeProject.videoPlatform)}`,
+    `- File kịch bản: ${safeProject.scriptUploadName || "Không có"}`,
+    `- Tài liệu tham khảo: ${safeProject.referenceUploadName || "Không có"}`,
     `- API key: ${safeProject.apiKey}`,
     "",
-    "## 2. Kich ban",
-    state.script.content.trim() || "_Chua co kich ban_",
+    "## 2. Kịch bản",
+    state.script.content.trim() || "_Chưa có kịch bản_",
     "",
-    "## 3. Nhan vat",
-    `- Ten: ${profile.name}`,
-    `- Vai tro: ${profile.role}`,
-    `- Ngoai hinh: ${profile.appearance}`,
-    `- Trang phuc: ${profile.outfit}`,
-    `- Tinh cach: ${profile.personality}`,
-    `- Giong noi: ${profile.voiceStyle}`,
+    "## 3. Nhân vật",
+    `- Tên: ${profile.name}`,
+    `- Vai trò: ${profile.role}`,
+    `- Ngoại hình: ${profile.appearance}`,
+    `- Trang phục: ${profile.outfit}`,
+    `- Tính cách: ${profile.personality}`,
+    `- Giọng nói: ${profile.voiceStyle}`,
     "",
-    "## 4. Phan canh",
+    "## 4. Phân cảnh",
     sceneBlock,
     "",
-    "## 5. Prompt pack",
+    "## 5. Gói prompt",
     promptBlock,
     "",
-    "## 6. Ghi chu xuat ban",
-    "- Goi nay san sang de dua sang tool tao hinh, video, voice-over hoac handoff cho editor.",
-    "- Neu sua kich ban hoac phan canh, nen tao lai prompt pack de dong bo.",
+    "## 6. Ghi chú xuất bản",
+    "- Gói này sẵn sàng để đưa sang công cụ tạo hình, video, lồng tiếng hoặc bàn giao cho biên tập viên.",
+    "- Nếu sửa kịch bản hoặc phân cảnh, nên tạo lại gói prompt để đồng bộ.",
   ].join("\n");
 }
 
@@ -1254,12 +1254,12 @@ function buildMasterCharacterPrompt() {
   const profile = getCharacterProfile();
   return [
     `${profile.name}, ${profile.role}.`,
-    `Appearance: ${profile.appearance}.`,
-    `Outfit and props: ${profile.outfit}.`,
-    `Personality: ${profile.personality}.`,
-    `Voice and performance vibe: ${profile.voiceStyle}.`,
-    `Visual style: ${state.project.visualStyle}.`,
-    `Keep the same face, proportions, costume and identity in every scene.`,
+    `Ngoại hình: ${profile.appearance}.`,
+    `Trang phục và đạo cụ: ${profile.outfit}.`,
+    `Tính cách: ${profile.personality}.`,
+    `Chất giọng và phong thái thể hiện: ${profile.voiceStyle}.`,
+    `Phong cách hình ảnh: ${state.project.visualStyle}.`,
+    `Giữ cùng một gương mặt, tỷ lệ cơ thể, trang phục và nhận diện ở mọi cảnh.`,
   ].join(" ");
 }
 
@@ -1291,18 +1291,18 @@ function applyProjectPreset(presetId) {
   });
   scheduleSave();
   renderAll({ syncInputs: true });
-  showToast("Da nap nhanh mot preset du an.");
+  showToast("Đã nạp nhanh một preset dự án.");
 }
 
 function resetProject() {
-  const confirmed = window.confirm("Ban muon xoa toan bo du lieu du an hien tai?");
+  const confirmed = window.confirm("Bạn muốn xóa toàn bộ dữ liệu dự án hiện tại?");
   if (!confirmed) {
     return;
   }
   state = cloneState(defaultState);
   saveNow();
   renderAll({ syncInputs: true });
-  showToast("Da lam moi du an.");
+  showToast("Đã làm mới dự án.");
 }
 
 function setStep(index) {
@@ -1314,7 +1314,7 @@ function setStep(index) {
 }
 
 function scheduleSave() {
-  updateSaveBadge("Dang luu...");
+  updateSaveBadge("Đang lưu...");
   window.clearTimeout(saveTimer);
   saveTimer = window.setTimeout(saveNow, 220);
 }
@@ -1331,14 +1331,14 @@ function updateSaveBadge(overrideText) {
     return;
   }
   if (!state.savedAt) {
-    elements.saveBadge.textContent = "Chua luu";
+    elements.saveBadge.textContent = "Chưa lưu";
     return;
   }
   const formatter = new Intl.DateTimeFormat("vi-VN", {
     hour: "2-digit",
     minute: "2-digit",
   });
-  elements.saveBadge.textContent = `Da luu luc ${formatter.format(state.savedAt)}`;
+  elements.saveBadge.textContent = `Đã lưu lúc ${formatter.format(state.savedAt)}`;
 }
 
 function loadState() {
@@ -1429,15 +1429,15 @@ function getCompletionStatus() {
 
 function productionMessage(readyCount) {
   if (readyCount <= 1) {
-    return "Can bo sung them de brief duoc day du.";
+    return "Cần bổ sung thêm để brief được đầy đủ.";
   }
   if (readyCount <= 3) {
-    return "Dang o muc co the draft nhanh, nhung chua nen handoff.";
+    return "Đang ở mức có thể lên bản nháp nhanh, nhưng chưa nên bàn giao.";
   }
   if (readyCount === 4) {
-    return "Chi con prompt pack la co the dua sang pipeline san xuat.";
+    return "Chỉ còn gói prompt là có thể đưa sang pipeline sản xuất.";
   }
-  return "San sang ban giao cho khau render va dung video.";
+  return "Sẵn sàng bàn giao cho khâu render và dựng video.";
 }
 
 function buildSuggestedTitle(topic) {
@@ -1452,17 +1452,17 @@ function buildSceneDurations(count, totalDuration) {
 }
 
 function outlineLabel(index, total) {
-  const labels = ["Hook", "Boi canh", "Thu thach", "No luc", "But pha", "Bai hoc", "CTA"];
+  const labels = ["Hook", "Bối cảnh", "Thử thách", "Nỗ lực", "Bứt phá", "Bài học", "CTA"];
   if (index < labels.length) {
     return labels[index];
   }
-  return `Phan ${index + 1}/${total}`;
+  return `Phần ${index + 1}/${total}`;
 }
 
 function inferSceneTitle(chunk, index) {
-  const baseLabels = ["Mo canh", "Boi canh", "Xung dot", "No luc", "Chuyen bien", "But pha", "Thong diep", "Ket"];
+  const baseLabels = ["Mở cảnh", "Bối cảnh", "Xung đột", "Nỗ lực", "Chuyển biến", "Bứt phá", "Thông điệp", "Kết"];
   const keywords = extractKeywords(chunk).slice(0, 2).join(" | ");
-  return keywords ? `${baseLabels[index] || `Canh ${index + 1}`}: ${keywords}` : baseLabels[index] || `Canh ${index + 1}`;
+  return keywords ? `${baseLabels[index] || `Cảnh ${index + 1}`}: ${keywords}` : baseLabels[index] || `Cảnh ${index + 1}`;
 }
 
 function splitParagraphs(text) {
@@ -1493,7 +1493,7 @@ function expandToTarget(items, target) {
     result.splice(index, 1, ...parts);
   }
   while (result.length < target) {
-    result.push("Them mot nhip chuyen canh ngan de nhan manh thong diep chinh.");
+    result.push("Thêm một nhịp chuyển cảnh ngắn để nhấn mạnh thông điệp chính.");
   }
   return result;
 }
@@ -1616,7 +1616,7 @@ function truncateText(text, maxLength) {
 
 function redactSecret(secret) {
   if (!secret) {
-    return "Khong co";
+    return "Không có";
   }
   return `${secret.slice(0, 4)}********${secret.slice(-2)}`;
 }
@@ -1624,15 +1624,12 @@ function redactSecret(secret) {
 function normalizeProjectState(project) {
   return {
     ...project,
+    audience: normalizeAudienceValue(project.audience),
     voice: normalizeVoiceValue(project.voice),
-    visualStyle: ensureAllowedValue(project.visualStyle, visualStyleOptions, defaultState.project.visualStyle),
-    tone: ensureAllowedValue(project.tone, toneOptions, defaultState.project.tone),
-    format: ensureAllowedValue(project.format, formatOptions, defaultState.project.format),
-    narrationMode: ensureAllowedValue(
-      project.narrationMode,
-      narrationModeOptions,
-      defaultState.project.narrationMode
-    ),
+    visualStyle: normalizeVisualStyleValue(project.visualStyle),
+    tone: normalizeToneValue(project.tone),
+    format: normalizeFormatValue(project.format),
+    narrationMode: normalizeNarrationModeValue(project.narrationMode),
     videoPlatform: ensureAllowedValue(
       project.videoPlatform,
       videoPlatforms.map((item) => item.id),
@@ -1643,21 +1640,103 @@ function normalizeProjectState(project) {
   };
 }
 
+function normalizeAudienceValue(value) {
+  const normalized = toAsciiSearchText(value);
+  if (normalized.includes("tieu hoc")) {
+    return "Tiểu học";
+  }
+  if (normalized.includes("sinh vien")) {
+    return "Sinh viên";
+  }
+  if (normalized.includes("giao vien")) {
+    return "Giáo viên";
+  }
+  if (normalized.includes("doanh nghiep")) {
+    return "Doanh nghiệp";
+  }
+  if (normalized.includes("thpt")) {
+    return "THPT";
+  }
+  return "THCS";
+}
+
 function normalizeVoiceValue(value) {
   const normalized = toAsciiSearchText(value);
   if (normalized.includes("trung tinh") || normalized.includes("tre trung")) {
-    return "Trung tinh";
+    return "Trung tính";
   }
   if (normalized.includes("mien trung") || normalized.includes("trung")) {
-    return "Mien Trung";
+    return "Miền Trung";
   }
   if (normalized.includes("mien nam") || normalized.includes("nam")) {
-    return "Mien Nam";
+    return "Miền Nam";
   }
   if (normalized.includes("mien bac") || normalized.includes("bac")) {
-    return "Mien Bac";
+    return "Miền Bắc";
   }
   return defaultState.project.voice;
+}
+
+function normalizeVisualStyleValue(value) {
+  const normalized = toAsciiSearchText(value);
+  if (normalized.includes("pixar")) {
+    return "Hoạt hình 3D Pixar";
+  }
+  if (normalized.includes("motion graphics")) {
+    return "Motion graphics giáo dục";
+  }
+  if (normalized.includes("cinematic")) {
+    return "Cinematic classroom";
+  }
+  if (normalized.includes("2d")) {
+    return "2D giáo dục hiện đại";
+  }
+  if (normalized.includes("realistic")) {
+    return "Realistic classroom";
+  }
+  return defaultState.project.visualStyle;
+}
+
+function normalizeToneValue(value) {
+  const normalized = toAsciiSearchText(value);
+  if (normalized.includes("vuot kho")) {
+    return "Vượt khó và bền bỉ";
+  }
+  if (normalized.includes("truyen cam hung")) {
+    return "Truyền cảm hứng";
+  }
+  if (normalized.includes("gan gui")) {
+    return "Gần gũi, đồng hành";
+  }
+  if (normalized.includes("nghiem tuc")) {
+    return "Nghiêm túc, học thuật";
+  }
+  return defaultState.project.tone;
+}
+
+function normalizeFormatValue(value) {
+  const normalized = toAsciiSearchText(value);
+  if (normalized.includes("tiktok") || normalized.includes("reel")) {
+    return "TikTok / Reel (9:16)";
+  }
+  if (normalized.includes("square") || normalized.includes("vuong")) {
+    return "Vuông (1:1)";
+  }
+  return "YouTube (16:9)";
+}
+
+function normalizeNarrationModeValue(value) {
+  const normalized = toAsciiSearchText(value);
+  if (normalized.includes("ke chuyen")) {
+    return "Kể chuyện";
+  }
+  if (normalized.includes("giai thich")) {
+    return "Giải thích bài học";
+  }
+  if (normalized.includes("doi thoai")) {
+    return "Đối thoại";
+  }
+  return "Tường thuật";
 }
 
 function ensureAllowedValue(value, allowedValues, fallback) {

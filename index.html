@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Xuong San Xuat Video Giao Duc AI</title>
+    <title>Xưởng Sản Xuất Video Giáo Dục AI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -24,74 +24,74 @@
               <span class="brand-mark-core">AI</span>
             </div>
             <div class="brand-copy">
-              <p class="eyebrow">Xuong san xuat video giao duc</p>
-              <h1>Quy trinh san xuat video AI</h1>
+              <p class="eyebrow">Xưởng sản xuất video giáo dục</p>
+              <h1>Quy trình sản xuất video AI</h1>
             </div>
           </div>
 
           <div class="topbar-actions">
-            <span class="role-pill">Giao vien</span>
-            <div class="save-badge" id="saveBadge">Dang khoi tao</div>
+            <span class="role-pill">Giáo viên</span>
+            <div class="save-badge" id="saveBadge">Đang khởi tạo</div>
             <button
               class="icon-button"
               id="resetProjectButton"
               type="button"
-              title="Lam moi du an"
-              aria-label="Lam moi du an"
+              title="Làm mới dự án"
+              aria-label="Làm mới dự án"
             >
               &#8635;
             </button>
           </div>
         </div>
 
-        <nav class="stepper" id="stepper" aria-label="Quy trinh san xuat"></nav>
+        <nav class="stepper" id="stepper" aria-label="Quy trình sản xuất"></nav>
       </header>
 
       <section class="hero">
-        <p class="hero-kicker">XUONG SAN XUAT VIDEO GIAO DUC</p>
-        <h2 class="hero-title">XUONG SAN XUAT VIDEO GIAO DUC</h2>
+        <p class="hero-kicker">XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC</p>
+        <h2 class="hero-title">XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC</h2>
         <p class="hero-subline">
-          Phat trien boi thay Nguy&#7877;n Vi&#7879;t H&#249;ng - Zalo 036.38.31.337
+          Phát triển bởi thầy Nguyễn Việt Hùng - Zalo 036.38.31.337
         </p>
 
         <div class="hero-chip-row">
           <span class="hero-chip hero-chip-primary" id="heroHeadline">
-            Brief: Chua nhap chu de
+            Brief: Chưa nhập chủ đề
           </span>
           <span class="hero-chip">
-            <span class="hero-chip-label">Doi tuong</span>
+            <span class="hero-chip-label">Đối tượng</span>
             <strong id="heroAudience">THCS</strong>
           </span>
           <span class="hero-chip">
-            <span class="hero-chip-label">Thoi luong</span>
+            <span class="hero-chip-label">Thời lượng</span>
             <strong id="heroDuration">60s</strong>
           </span>
           <span class="hero-chip">
-            <span class="hero-chip-label">Giong doc</span>
-            <strong id="heroVoice">Mien Bac</strong>
+            <span class="hero-chip-label">Giọng đọc</span>
+            <strong id="heroVoice">Miền Bắc</strong>
           </span>
           <span class="hero-chip">
-            <span class="hero-chip-label">Nen tang</span>
+            <span class="hero-chip-label">Nền tảng</span>
             <strong id="heroPlatform">Veo3</strong>
           </span>
           <span class="hero-chip">
-            <span class="hero-chip-label">So canh</span>
+            <span class="hero-chip-label">Số cảnh</span>
             <strong id="heroScenes">0</strong>
           </span>
         </div>
 
         <p class="hero-description" id="heroDescription">
-          Nhap thong tin brief de AI de xuat cau hinh phu hop cho toan bo quy
-          trinh san xuat.
+          Nhập thông tin brief để AI đề xuất cấu hình phù hợp cho toàn bộ quy
+          trình sản xuất.
         </p>
       </section>
 
       <main class="panel-stack">
         <section class="step-panel is-active config-panel" data-step="0">
           <div class="config-intro">
-            <p class="config-heading">&#9881; Cau hinh du an</p>
+            <p class="config-heading">&#9881; Cấu hình dự án</p>
             <p class="panel-description">
-              Nhap thong tin de AI tao video giao duc phu hop nhat.
+              Nhập thông tin để AI tạo video giáo dục phù hợp nhất.
             </p>
           </div>
 
@@ -104,8 +104,8 @@
             <label class="field compact-field">
               <span>Gemini API Key</span>
               <small class="field-note">
-                Khoa duoc luu rieng tren trinh duyet. File export se tu dong an
-                khoa.
+                Khóa được lưu riêng trên trình duyệt. File export sẽ tự động ẩn
+                khóa.
               </small>
               <input
                 id="apiKeyInput"
@@ -119,29 +119,29 @@
           <article class="card config-card">
             <div class="section-tag section-tag-pink">
               <span class="section-dot"></span>
-              NOI DUNG GIAO DUC
+              NỘI DUNG GIÁO DỤC
             </div>
 
             <label class="field">
-              <span>Chu de / De bai / Hoat dong hoc tap</span>
+              <span>Chủ đề / Đề bài / Hoạt động học tập</span>
               <textarea
                 id="topicInput"
                 rows="4"
-                placeholder="Vi du: Giai thich cach hoc hieu qua khi on thi, su dung van phong hoc va tao dong luc cho hoc sinh THCS..."
+                placeholder="Ví dụ: Giải thích cách học hiệu quả khi ôn thi, sử dụng văn phong học và tạo động lực cho học sinh THCS..."
               ></textarea>
               <small class="field-note">
-                Mo ta cang cu the, kich ban goi y se cang sat muc tieu hon.
+                Mô tả càng cụ thể, kịch bản gợi ý sẽ càng sát mục tiêu hơn.
               </small>
             </label>
 
             <div class="upload-grid">
               <article class="upload-card">
                 <div class="upload-copy">
-                  <strong>Tai file kich ban</strong>
-                  <p>Ho tro txt, md, doc, docx, pdf</p>
+                  <strong>Tải file kịch bản</strong>
+                  <p>Hỗ trợ txt, md, doc, docx, pdf</p>
                 </div>
                 <button class="mini-button" id="uploadScriptButton" type="button">
-                  Chon file
+                  Chọn file
                 </button>
                 <input
                   id="scriptUploadInput"
@@ -150,21 +150,21 @@
                   hidden
                 />
                 <p class="upload-status" id="scriptUploadStatus">
-                  Chua chon file.
+                  Chưa chọn file.
                 </p>
               </article>
 
               <article class="upload-card upload-card-dashed">
                 <div class="upload-copy">
-                  <strong>Tai anh / bai / bai toan / tinh huong thuc te</strong>
-                  <p>Giup tao hook, CTA va cac goi y canh minh hoa.</p>
+                  <strong>Tải ảnh / bài / bài toán / tình huống thực tế</strong>
+                  <p>Giúp tạo hook, CTA và các gợi ý cảnh minh họa.</p>
                 </div>
                 <button
                   class="mini-button"
                   id="uploadReferenceButton"
                   type="button"
                 >
-                  Chon anh
+                  Chọn ảnh
                 </button>
                 <input
                   id="referenceUploadInput"
@@ -173,26 +173,26 @@
                   hidden
                 />
                 <p class="upload-status" id="referenceUploadStatus">
-                  Chua chon tai lieu.
+                  Chưa chọn tài liệu.
                 </p>
               </article>
             </div>
 
             <div class="grid-layout two-columns compact-grid">
               <label class="field">
-                <span>Doi tuong hoc vien</span>
+                <span>Đối tượng học viên</span>
                 <select id="audienceInput">
                   <option value="THCS">THCS</option>
-                  <option value="Tieu hoc">Tieu hoc</option>
+                  <option value="Tiểu học">Tiểu học</option>
                   <option value="THPT">THPT</option>
-                  <option value="Sinh vien">Sinh vien</option>
-                  <option value="Giao vien">Giao vien</option>
-                  <option value="Doanh nghiep">Doanh nghiep</option>
+                  <option value="Sinh viên">Sinh viên</option>
+                  <option value="Giáo viên">Giáo viên</option>
+                  <option value="Doanh nghiệp">Doanh nghiệp</option>
                 </select>
               </label>
 
               <label class="field">
-                <span>Thoi luong video</span>
+                <span>Thời lượng video</span>
                 <select id="durationInput">
                   <option value="60s">60s</option>
                   <option value="30s">30s</option>
@@ -205,29 +205,29 @@
 
             <div class="voice-block">
               <div class="field-label-row">
-                <span class="field-label">Lua chon giong vung mien</span>
+                <span class="field-label">Lựa chọn giọng vùng miền</span>
                 <small class="field-note">
-                  Voice preset duoc dung cho script, prompt voice va file export.
+                  Thiết lập giọng được dùng cho script, prompt giọng và file export.
                 </small>
               </div>
 
               <div class="voice-region-grid" id="voiceRegionGrid"></div>
 
-              <label class="sr-only" for="voiceInput">Giong doc</label>
+              <label class="sr-only" for="voiceInput">Giọng đọc</label>
               <select id="voiceInput" class="sr-only">
-                <option value="Mien Bac">Mien Bac</option>
-                <option value="Mien Trung">Mien Trung</option>
-                <option value="Mien Nam">Mien Nam</option>
-                <option value="Trung tinh">Trung tinh</option>
+                <option value="Miền Bắc">Miền Bắc</option>
+                <option value="Miền Trung">Miền Trung</option>
+                <option value="Miền Nam">Miền Nam</option>
+                <option value="Trung tính">Trung tính</option>
               </select>
             </div>
 
             <label class="field">
-              <span>Muc tieu hoc tap</span>
+              <span>Mục tiêu học tập</span>
               <input
                 id="objectiveInput"
                 type="text"
-                placeholder="Vi du: Tao dong luc hoc tap, giup hoc sinh de hieu va nho y chinh"
+                placeholder="Ví dụ: Tạo động lực học tập, giúp học sinh dễ hiểu và nhớ ý chính"
               />
             </label>
           </article>
@@ -235,55 +235,55 @@
           <article class="card config-card">
             <div class="section-tag section-tag-blue">
               <span class="section-dot"></span>
-              PHONG CACH HINH ANH
+              PHONG CÁCH HÌNH ẢNH
             </div>
 
             <div class="grid-layout two-columns compact-grid">
               <label class="field">
-                <span>Phong cach video</span>
+                <span>Phong cách video</span>
                 <select id="visualStyleInput">
-                  <option value="Hoat hinh 3D Pixar">Hoat hinh 3D Pixar</option>
-                  <option value="Motion graphics giao duc">
-                    Motion graphics giao duc
+                  <option value="Hoạt hình 3D Pixar">Hoạt hình 3D Pixar</option>
+                  <option value="Motion graphics giáo dục">
+                    Motion graphics giáo dục
                   </option>
                   <option value="Cinematic classroom">Cinematic classroom</option>
-                  <option value="2D giao duc hien dai">
-                    2D giao duc hien dai
+                  <option value="2D giáo dục hiện đại">
+                    2D giáo dục hiện đại
                   </option>
                   <option value="Realistic classroom">Realistic classroom</option>
                 </select>
               </label>
 
               <label class="field">
-                <span>Tong dieu</span>
+                <span>Tông điệu</span>
                 <select id="toneInput">
-                  <option value="Vuot kho va ben bi">Vuot kho va ben bi</option>
-                  <option value="Truyen cam hung">Truyen cam hung</option>
-                  <option value="Gan gui, dong hanh">Gan gui, dong hanh</option>
-                  <option value="Nghiem tuc, hoc thuat">
-                    Nghiem tuc, hoc thuat
+                  <option value="Vượt khó và bền bỉ">Vượt khó và bền bỉ</option>
+                  <option value="Truyền cảm hứng">Truyền cảm hứng</option>
+                  <option value="Gần gũi, đồng hành">Gần gũi, đồng hành</option>
+                  <option value="Nghiêm túc, học thuật">
+                    Nghiêm túc, học thuật
                   </option>
                 </select>
               </label>
 
               <label class="field">
-                <span>Dinh dang video</span>
+                <span>Định dạng video</span>
                 <select id="formatInput">
                   <option value="YouTube (16:9)">YouTube (16:9)</option>
                   <option value="TikTok / Reel (9:16)">
                     TikTok / Reel (9:16)
                   </option>
-                  <option value="Square (1:1)">Square (1:1)</option>
+                  <option value="Vuông (1:1)">Vuông (1:1)</option>
                 </select>
               </label>
 
               <label class="field">
-                <span>Ngoi ke</span>
+                <span>Ngôi kể</span>
                 <select id="narrationModeInput">
-                  <option value="Tong thuat">Tong thuat</option>
-                  <option value="Ke chuyen">Ke chuyen</option>
-                  <option value="Giai thich bai hoc">Giai thich bai hoc</option>
-                  <option value="Doi thoai">Doi thoai</option>
+                  <option value="Tường thuật">Tường thuật</option>
+                  <option value="Kể chuyện">Kể chuyện</option>
+                  <option value="Giải thích bài học">Giải thích bài học</option>
+                  <option value="Đối thoại">Đối thoại</option>
                 </select>
               </label>
             </div>
@@ -292,16 +292,16 @@
           <article class="card config-card">
             <div class="section-tag section-tag-red">
               <span class="section-dot"></span>
-              NEN TANG TAO VIDEO
+              NỀN TẢNG TẠO VIDEO
             </div>
             <p class="card-copy">
-              Chon nen tang AI de toi uu prompt, nhac nhip va output phu hop.
+              Chọn nền tảng AI để tối ưu prompt, nhạc nhịp và output phù hợp.
             </p>
             <div class="platform-grid" id="platformGrid"></div>
             <p class="platform-footnote">
-              Veo3 manh ve dialogue va phong cach cinematic. Sora 2 linh hoat
-              cho canh dai. Seedance 2.0 giu bo cuc tot. Grok Imagine nhanh de
-              draft y tuong.
+              Veo3 mạnh về dialogue và phong cách cinematic. Sora 2 linh hoạt
+              cho cảnh dài. Seedance 2.0 giữ bố cục tốt. Grok Imagine nhanh để
+              draft ý tưởng.
             </p>
           </article>
         </section>
@@ -309,54 +309,54 @@
         <section class="step-panel" data-step="1">
           <div class="panel-heading">
             <div>
-              <p class="step-kicker">Buoc 2</p>
-              <h2>Tao kich ban</h2>
+              <p class="step-kicker">Bước 2</p>
+              <h2>Tạo kịch bản</h2>
               <p class="panel-description">
-                Tao nhap nhanh mot kich ban theo brief, sau do tinh chinh lai
-                cho phu hop voi nhac nhip giac quan va giong doc.
+                Tạo nháp nhanh một kịch bản theo brief, sau đó tinh chỉnh lại
+                cho phù hợp với nhạc nhịp thị giác và giọng đọc.
               </p>
             </div>
 
-            <span class="panel-pill">Narration draft</span>
+            <span class="panel-pill">Bản nháp lời dẫn</span>
           </div>
 
           <div class="action-row">
             <button class="primary-button" id="generateScriptButton" type="button">
-              Tao kich ban mau
+              Tạo kịch bản mẫu
             </button>
             <button class="secondary-button" id="refineScriptButton" type="button">
-              Chuan hoa giong doc
+              Chuẩn hóa giọng đọc
             </button>
             <button class="ghost-button" id="clearScriptButton" type="button">
-              Xoa kich ban
+              Xóa kịch bản
             </button>
           </div>
 
           <div class="grid-layout two-columns">
             <article class="card">
               <label class="field">
-                <span>Tieu de video</span>
+                <span>Tiêu đề video</span>
                 <input
                   id="scriptTitleInput"
                   type="text"
-                  placeholder="Dat tieu de ngan gon, de nho"
+                  placeholder="Đặt tiêu đề ngắn gọn, dễ nhớ"
                 />
               </label>
 
               <label class="field">
-                <span>Noi dung kich ban</span>
+                <span>Nội dung kịch bản</span>
                 <textarea
                   id="scriptContentInput"
                   rows="16"
-                  placeholder="Kich ban se xuat hien o day sau khi ban tao mau..."
+                  placeholder="Kịch bản sẽ xuất hiện ở đây sau khi bạn tạo mẫu..."
                 ></textarea>
               </label>
             </article>
 
             <aside class="card card-soft">
               <div class="card-title-row">
-                <h3>Khung noi dung goi y</h3>
-                <span class="mini-tag">Auto update</span>
+                <h3>Khung nội dung gợi ý</h3>
+                <span class="mini-tag">Tự cập nhật</span>
               </div>
               <div id="scriptOutline" class="outline-stack"></div>
             </aside>
@@ -366,21 +366,21 @@
         <section class="step-panel" data-step="2">
           <div class="panel-heading">
             <div>
-              <p class="step-kicker">Buoc 3</p>
-              <h2>Chon nhan vat</h2>
+              <p class="step-kicker">Bước 3</p>
+              <h2>Chọn nhân vật</h2>
               <p class="panel-description">
-                Chon mot archetype co san hoac bo sung mo ta chi tiet de giu
-                tinh nhat quan giua cac canh va prompts.
+                Chọn một archetype có sẵn hoặc bổ sung mô tả chi tiết để giữ
+                tính nhất quán giữa các cảnh và prompts.
               </p>
             </div>
 
-            <span class="panel-pill">Character design</span>
+            <span class="panel-pill">Thiết kế nhân vật</span>
           </div>
 
           <article class="card">
             <div class="card-title-row">
-              <h3>Thu vien nhan vat</h3>
-              <span class="mini-tag mini-tag-highlight">Consistent</span>
+              <h3>Thư viện nhân vật</h3>
+              <span class="mini-tag mini-tag-highlight">Nhất quán</span>
             </div>
             <div class="character-grid" id="characterPresetGrid"></div>
           </article>
@@ -388,56 +388,56 @@
           <div class="grid-layout two-columns">
             <article class="card">
               <div class="card-title-row">
-                <h3>Tuy bien nhan vat</h3>
-                <span class="mini-tag">Chi tiet hoa</span>
+                <h3>Tùy biến nhân vật</h3>
+                <span class="mini-tag">Chi tiết hóa</span>
               </div>
 
               <div class="grid-layout two-columns">
                 <label class="field">
-                  <span>Ten nhan vat</span>
-                  <input id="characterNameInput" type="text" placeholder="Vi du: Minh Anh" />
+                  <span>Tên nhân vật</span>
+                  <input id="characterNameInput" type="text" placeholder="Ví dụ: Minh Anh" />
                 </label>
 
                 <label class="field">
-                  <span>Vai tro</span>
-                  <input id="characterRoleInput" type="text" placeholder="Vi du: hoc sinh lop 12" />
+                  <span>Vai trò</span>
+                  <input id="characterRoleInput" type="text" placeholder="Ví dụ: học sinh lớp 12" />
                 </label>
               </div>
 
               <label class="field">
-                <span>Ngoai hinh</span>
+                <span>Ngoại hình</span>
                 <textarea
                   id="characterAppearanceInput"
                   rows="4"
-                  placeholder="Mo ta mat, toc, do tuoi, than thai, bieu cam dac trung..."
+                  placeholder="Mô tả mặt, tóc, độ tuổi, thần thái, biểu cảm đặc trưng..."
                 ></textarea>
               </label>
 
               <label class="field">
-                <span>Trang phuc va dao cu</span>
+                <span>Trang phục và đạo cụ</span>
                 <input
                   id="characterOutfitInput"
                   type="text"
-                  placeholder="Vi du: dong phuc hoc sinh, ba lo, sach vo..."
+                  placeholder="Ví dụ: đồng phục học sinh, ba lô, sách vở..."
                 />
               </label>
 
               <div class="grid-layout two-columns">
                 <label class="field">
-                  <span>Tinh cach</span>
+                  <span>Tính cách</span>
                   <input
                     id="characterPersonalityInput"
                     type="text"
-                    placeholder="Cham chi, kien tri, truyen cam hung..."
+                    placeholder="Chăm chỉ, kiên trì, truyền cảm hứng..."
                   />
                 </label>
 
                 <label class="field">
-                  <span>Phong thai giong noi</span>
+                  <span>Phong thái giọng nói</span>
                   <input
                     id="characterVoiceStyleInput"
                     type="text"
-                    placeholder="Tu tin, am ap, nhiet huyet..."
+                    placeholder="Tự tin, ấm áp, nhiệt huyết..."
                   />
                 </label>
               </div>
@@ -445,8 +445,8 @@
 
             <aside class="card card-gradient">
               <div class="card-title-row">
-                <h3>Character prompt master</h3>
-                <span class="mini-tag">Dua sang AI</span>
+                <h3>Prompt nhân vật tổng</h3>
+                <span class="mini-tag">Đưa sang AI</span>
               </div>
               <p class="preview-copy" id="characterPromptPreview"></p>
             </aside>
@@ -456,26 +456,26 @@
         <section class="step-panel" data-step="3">
           <div class="panel-heading">
             <div>
-              <p class="step-kicker">Buoc 4</p>
-              <h2>Phan tach canh</h2>
+              <p class="step-kicker">Bước 4</p>
+              <h2>Phân tách cảnh</h2>
               <p class="panel-description">
-                Tach kich ban thanh nhieu canh co thoi luong, bo canh, camera va
-                nhan cue noi dung ro rang.
+                Tách kịch bản thành nhiều cảnh có thời lượng, bối cảnh, camera và
+                nhãn cue nội dung rõ ràng.
               </p>
             </div>
 
-            <span class="panel-pill">Scene planner</span>
+            <span class="panel-pill">Lập cảnh quay</span>
           </div>
 
           <div class="action-row">
             <button class="primary-button" id="splitScenesButton" type="button">
-              Tach canh tu dong
+              Tách cảnh tự động
             </button>
             <button class="secondary-button" id="rebalanceScenesButton" type="button">
-              Can lai thoi luong
+              Cân lại thời lượng
             </button>
             <button class="ghost-button" id="addSceneButton" type="button">
-              Them canh
+              Thêm cảnh
             </button>
           </div>
 
@@ -486,44 +486,44 @@
         <section class="step-panel" data-step="4">
           <div class="panel-heading">
             <div>
-              <p class="step-kicker">Buoc 5</p>
+              <p class="step-kicker">Bước 5</p>
               <h2>Prompts</h2>
               <p class="panel-description">
-                Sinh prompt hinh anh, motion, voice-over va subtitle cho tung
-                canh de dua sang quy trinh tao video.
+                Sinh prompt hình ảnh, chuyển động, lời thoại và phụ đề cho từng
+                cảnh để đưa sang quy trình tạo video.
               </p>
             </div>
 
-            <span class="panel-pill">Prompt package</span>
+            <span class="panel-pill">Gói prompt</span>
           </div>
 
           <div class="action-row">
             <button class="primary-button" id="generatePromptsButton" type="button">
-              Tao prompts cho tat ca canh
+              Tạo prompt cho tất cả cảnh
             </button>
             <button class="secondary-button" id="copyMasterPromptButton" type="button">
-              Sao chep character prompt
+              Sao chép prompt nhân vật
             </button>
           </div>
 
           <div class="grid-layout two-columns">
             <article class="card card-accent">
               <div class="card-title-row">
-                <h3>Master visual brief</h3>
-                <span class="mini-tag mini-tag-highlight">Style lock</span>
+                <h3>Brief hình ảnh tổng</h3>
+                <span class="mini-tag mini-tag-highlight">Khóa phong cách</span>
               </div>
               <p class="preview-copy" id="masterPromptPreview"></p>
             </article>
 
             <article class="card">
               <div class="card-title-row">
-                <h3>Nhac nho khi prompt</h3>
-                <span class="mini-tag">Chat luong</span>
+                <h3>Nhắc nhở khi prompt</h3>
+                <span class="mini-tag">Chất lượng</span>
               </div>
               <div class="tip-stack">
-                <p>Giu mot nhan vat xuyen suot de tranh thay doi guong mat qua cac canh.</p>
-                <p>Them boi canh, anh sang, camera va cam xuc cho moi canh de ket qua ro hon.</p>
-                <p>Khi sua noi dung phan canh, nen tao lai prompts de dong bo voi loi thoai moi.</p>
+                <p>Giữ một nhân vật xuyên suốt để tránh thay đổi gương mặt qua các cảnh.</p>
+                <p>Thêm bối cảnh, ánh sáng, camera và cảm xúc cho mỗi cảnh để kết quả rõ hơn.</p>
+                <p>Khi sửa nội dung phân cảnh, nên tạo lại prompt để đồng bộ với lời thoại mới.</p>
               </div>
             </article>
           </div>
@@ -534,22 +534,22 @@
         <section class="step-panel" data-step="5">
           <div class="panel-heading">
             <div>
-              <p class="step-kicker">Buoc 6</p>
-              <h2>Xuat ban</h2>
+              <p class="step-kicker">Bước 6</p>
+              <h2>Xuất bản</h2>
               <p class="panel-description">
-                Tong hop production brief, kiem tra do san sang va xuat du lieu
-                de dua sang pipeline dung video.
+                Tổng hợp brief sản xuất, kiểm tra độ sẵn sàng và xuất dữ liệu
+                để đưa sang pipeline dựng video.
               </p>
             </div>
 
-            <span class="panel-pill">Delivery pack</span>
+            <span class="panel-pill">Gói bàn giao</span>
           </div>
 
           <div class="grid-layout two-columns">
             <article class="card">
               <div class="card-title-row">
-                <h3>Do san sang</h3>
-                <span class="mini-tag">Checklist</span>
+              <h3>Độ sẵn sàng</h3>
+              <span class="mini-tag">Checklist</span>
               </div>
               <div class="progress-block">
                 <div class="progress-bar">
@@ -562,32 +562,32 @@
 
             <article class="card">
               <div class="card-title-row">
-                <h3>Xuat du lieu</h3>
-                <span class="mini-tag mini-tag-highlight">Safe export</span>
-              </div>
-              <div class="action-grid">
-                <button class="primary-button" id="exportJsonButton" type="button">
-                  Tai JSON
-                </button>
-                <button class="secondary-button" id="exportMarkdownButton" type="button">
-                  Tai Markdown
-                </button>
-                <button class="ghost-button" id="copyBriefButton" type="button">
-                  Sao chep brief
-                </button>
-              </div>
+              <h3>Xuất dữ liệu</h3>
+              <span class="mini-tag mini-tag-highlight">Xuất an toàn</span>
+            </div>
+            <div class="action-grid">
+              <button class="primary-button" id="exportJsonButton" type="button">
+                  Tải JSON
+              </button>
+              <button class="secondary-button" id="exportMarkdownButton" type="button">
+                  Tải Markdown
+              </button>
+              <button class="ghost-button" id="copyBriefButton" type="button">
+                  Sao chép brief
+              </button>
+            </div>
               <p class="card-copy">
-                Goi xuat khong bao gom API key, phu hop de chia se cho editor,
-                prompt engineer hoac team san xuat.
+                Gói xuất không bao gồm API key, phù hợp để chia sẻ cho biên tập viên,
+                prompt engineer hoặc team sản xuất.
               </p>
             </article>
           </div>
 
           <article class="card">
             <div class="card-title-row">
-              <h3>Production brief preview</h3>
+              <h3>Xem trước brief sản xuất</h3>
               <button class="ghost-button" id="refreshBriefButton" type="button">
-                Lam moi preview
+                Làm mới preview
               </button>
             </div>
             <textarea id="publishPreview" rows="18" readonly></textarea>
@@ -597,18 +597,18 @@
 
       <footer class="wizard-dock">
         <button class="ghost-button" id="prevStepButton" type="button">
-          Quay lai
+          Quay lại
         </button>
         <p class="dock-status" id="dockStatus"></p>
         <button class="primary-button" id="nextStepButton" type="button">
-          Tiep tuc
+          Tiếp tục
         </button>
       </footer>
 
       <footer class="app-footer">
-        <p>XUONG SAN XUAT VIDEO GIAO DUC - Tao video giao duc AI</p>
+        <p>XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC - Tạo video giáo dục AI</p>
         <p>
-          Phat trien boi thay Nguy&#7877;n Vi&#7879;t H&#249;ng - Zalo 036.38.31.337 - Dang dung:
+          Phát triển bởi thầy Nguyễn Việt Hùng - Zalo 036.38.31.337 - Đang dùng:
           <span id="footerPlatform">Veo3</span>
         </p>
       </footer>

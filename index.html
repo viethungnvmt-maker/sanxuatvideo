@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xuong San Xuat Video Giao Duc AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-glow glow-a"></div>
+    <div class="page-glow glow-b"></div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span class="brand-mark-core">AI</span>
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">Xuong san xuat video giao duc</p>
+            <h1>Quy trinh 6 buoc de tao video AI</h1>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="save-badge" id="saveBadge">Dang khoi tao</div>
+          <button class="ghost-button" id="resetProjectButton" type="button">
+            Lam moi du an
+          </button>
+        </div>
+      </header>
+
+      <nav class="stepper" id="stepper" aria-label="Quy trinh san xuat"></nav>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="hero-kicker">AI-Powered Production</p>
+          <h2 id="heroHeadline">Xuong san xuat video giao duc</h2>
+          <p id="heroDescription">
+            Cau hinh de bai, tao kich ban, chon nhan vat, tach canh, tao prompts
+            va xuat goi san xuat trong mot man hinh.
+          </p>
+
+          <div class="chip-row">
+            <span class="hero-chip">Local autosave</span>
+            <span class="hero-chip">Script to scenes</span>
+            <span class="hero-chip">Prompt-ready export</span>
+          </div>
+        </div>
+
+        <div class="hero-metrics">
+          <article class="metric-card">
+            <span class="metric-label">Doi tuong</span>
+            <strong class="metric-value" id="heroAudience">THPT</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Thoi luong</span>
+            <strong class="metric-value" id="heroDuration">30s</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">So canh</span>
+            <strong class="metric-value" id="heroScenes">0</strong>
+          </article>
+        </div>
+      </section>
+
+      <main class="panel-stack">
+        <section class="step-panel is-active" data-step="0">
+          <div class="panel-heading">
+            <div>
+              <p class="step-kicker">Buoc 1</p>
+              <h2>Cau hinh du an</h2>
+              <p class="panel-description">
+                Nhap de bai, doi tuong hoc, giong doc va phong cach hinh anh de
+                dinh huong toan bo quy trinh san xuat.
+              </p>
+            </div>
+
+            <span class="panel-pill">Brief + style system</span>
+          </div>
+
+          <div class="grid-layout two-columns">
+            <article class="card">
+              <div class="card-title-row">
+                <h3>API key</h3>
+                <span class="mini-tag">Luu local</span>
+              </div>
+              <p class="card-copy">
+                Ban co the luu khoa Gemini ngay trong trinh duyet de san sang
+                cho buoc ket noi AI sau nay. File export se tu dong an khoa.
+              </p>
+              <label class="field">
+                <span>Gemini API Key</span>
+                <input
+                  id="apiKeyInput"
+                  type="password"
+                  placeholder="Nhap API key neu ban muon luu kem du an"
+                  autocomplete="off"
+                />
+              </label>
+            </article>
+
+            <article class="card card-accent">
+              <div class="card-title-row">
+                <h3>Preset goi y</h3>
+                <span class="mini-tag mini-tag-highlight">Nhanh</span>
+              </div>
+              <div class="preset-stack">
+                <button class="preset-pill" type="button" data-project-preset="story">
+                  Story dong luc hoc tap
+                </button>
+                <button class="preset-pill" type="button" data-project-preset="lesson">
+                  Bai giang ngan 45s
+                </button>
+                <button class="preset-pill" type="button" data-project-preset="cta">
+                  Video keu goi hanh dong
+                </button>
+              </div>
+              <p class="card-copy">
+                Cac preset chi giup dien nhanh cau hinh ban dau, sau do ban van
+                co the sua tu do toan bo noi dung.
+              </p>
+            </article>
+          </div>
+
+          <article class="card">
+            <label class="field">
+              <span>Chu de / de bai / hoat dong hoc tap</span>
+              <textarea
+                id="topicInput"
+                rows="5"
+                placeholder="Mo ta chi tiet chu de ban muon AI bien thanh video giao duc..."
+              ></textarea>
+            </label>
+
+            <div class="grid-layout three-columns">
+              <label class="field">
+                <span>Doi tuong hoc vien</span>
+                <select id="audienceInput">
+                  <option value="Tieu hoc">Tieu hoc</option>
+                  <option value="THCS">THCS</option>
+                  <option value="THPT">THPT</option>
+                  <option value="Sinh vien">Sinh vien</option>
+                  <option value="Giao vien">Giao vien</option>
+                  <option value="Doanh nghiep">Doanh nghiep</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Thoi luong video</span>
+                <select id="durationInput">
+                  <option value="30s">30s</option>
+                  <option value="45s">45s</option>
+                  <option value="60s">60s</option>
+                  <option value="90s">90s</option>
+                  <option value="120s">120s</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Giong doc</span>
+                <select id="voiceInput">
+                  <option value="Giong nam mien Bac">Giong nam mien Bac</option>
+                  <option value="Giong nu mien Bac">Giong nu mien Bac</option>
+                  <option value="Giong nam mien Nam">Giong nam mien Nam</option>
+                  <option value="Giong nu mien Nam">Giong nu mien Nam</option>
+                  <option value="Tre trung, nhanh gon">
+                    Tre trung, nhanh gon
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <div class="grid-layout two-columns">
+              <label class="field">
+                <span>Muc tieu hoc tap</span>
+                <input
+                  id="objectiveInput"
+                  type="text"
+                  placeholder="Vi du: tao dong luc, giup hoc sinh hieu bai, ren ky luat..."
+                />
+              </label>
+
+              <label class="field">
+                <span>Phong cach hinh anh</span>
+                <select id="visualStyleInput">
+                  <option value="Cinematic 3D">Cinematic 3D</option>
+                  <option value="2D giao duc hien dai">
+                    2D giao duc hien dai
+                  </option>
+                  <option value="Anime truyen cam hung">
+                    Anime truyen cam hung
+                  </option>
+                  <option value="Realistic classroom">Realistic classroom</option>
+                  <option value="Motion graphics infographic">
+                    Motion graphics infographic
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Tong noi dung</span>
+              <select id="toneInput">
+                <option value="Truyen cam hung">Truyen cam hung</option>
+                <option value="Gan gui, dong hanh">Gan gui, dong hanh</option>
+                <option value="Nghiem tuc, hoc thuat">Nghiem tuc, hoc thuat</option>
+                <option value="Day nang luong">Day nang luong</option>
+              </select>
+            </label>
+          </article>
+        </section>
+
+        <section class="step-panel" data-step="1">
+          <div class="panel-heading">
+            <div>
+              <p class="step-kicker">Buoc 2</p>
+              <h2>Tao kich ban</h2>
+              <p class="panel-description">
+                Tao nhap nhanh mot kich ban theo brief, sau do tinh chinh lai
+                cho phu hop voi nhac nhip giac quan va giong doc.
+              </p>
+            </div>
+
+            <span class="panel-pill">Narration draft</span>
+          </div>
+
+          <div class="action-row">
+            <button class="primary-button" id="generateScriptButton" type="button">
+              Tao kich ban mau
+            </button>
+            <button class="secondary-button" id="refineScriptButton" type="button">
+              Chuan hoa giong doc
+            </button>
+            <button class="ghost-button" id="clearScriptButton" type="button">
+              Xoa kich ban
+            </button>
+          </div>
+
+          <div class="grid-layout two-columns">
+            <article class="card">
+              <label class="field">
+                <span>Tieu de video</span>
+                <input
+                  id="scriptTitleInput"
+                  type="text"
+                  placeholder="Dat tieu de ngan gon, de nho"
+                />
+              </label>
+
+              <label class="field">
+                <span>Noi dung kich ban</span>
+                <textarea
+                  id="scriptContentInput"
+                  rows="16"
+                  placeholder="Kich ban se xuat hien o day sau khi ban tao mau..."
+                ></textarea>
+              </label>
+            </article>
+
+            <aside class="card card-soft">
+              <div class="card-title-row">
+                <h3>Khung noi dung goi y</h3>
+                <span class="mini-tag">Auto update</span>
+              </div>
+              <div id="scriptOutline" class="outline-stack"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step="2">
+          <div class="panel-heading">
+            <div>
+              <p class="step-kicker">Buoc 3</p>
+              <h2>Chon nhan vat</h2>
+              <p class="panel-description">
+                Chon mot archetype co san hoac bo sung mo ta chi tiet de giu
+                tinh nhat quan giua cac canh va prompts.
+              </p>
+            </div>
+
+            <span class="panel-pill">Character design</span>
+          </div>
+
+          <article class="card">
+            <div class="card-title-row">
+              <h3>Thu vien nhan vat</h3>
+              <span class="mini-tag mini-tag-highlight">Consistent</span>
+            </div>
+            <div class="character-grid" id="characterPresetGrid"></div>
+          </article>
+
+          <div class="grid-layout two-columns">
+            <article class="card">
+              <div class="card-title-row">
+                <h3>Tuy bien nhan vat</h3>
+                <span class="mini-tag">Chi tiet hoa</span>
+              </div>
+
+              <div class="grid-layout two-columns">
+                <label class="field">
+                  <span>Ten nhan vat</span>
+                  <input id="characterNameInput" type="text" placeholder="Vi du: Minh Anh" />
+                </label>
+
+                <label class="field">
+                  <span>Vai tro</span>
+                  <input id="characterRoleInput" type="text" placeholder="Vi du: hoc sinh lop 12" />
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Ngoai hinh</span>
+                <textarea
+                  id="characterAppearanceInput"
+                  rows="4"
+                  placeholder="Mo ta mat, toc, do tuoi, than thai, bieu cam dac trung..."
+                ></textarea>
+              </label>
+
+              <label class="field">
+                <span>Trang phuc va dao cu</span>
+                <input
+                  id="characterOutfitInput"
+                  type="text"
+                  placeholder="Vi du: dong phuc hoc sinh, ba lo, sach vo..."
+                />
+              </label>
+
+              <div class="grid-layout two-columns">
+                <label class="field">
+                  <span>Tinh cach</span>
+                  <input
+                    id="characterPersonalityInput"
+                    type="text"
+                    placeholder="Cham chi, kien tri, truyen cam hung..."
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Phong thai giong noi</span>
+                  <input
+                    id="characterVoiceStyleInput"
+                    type="text"
+                    placeholder="Tu tin, am ap, nhiet huyet..."
+                  />
+                </label>
+              </div>
+            </article>
+
+            <aside class="card card-gradient">
+              <div class="card-title-row">
+                <h3>Character prompt master</h3>
+                <span class="mini-tag">Dua sang AI</span>
+              </div>
+              <p class="preview-copy" id="characterPromptPreview"></p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step="3">
+          <div class="panel-heading">
+            <div>
+              <p class="step-kicker">Buoc 4</p>
+              <h2>Phan tach canh</h2>
+              <p class="panel-description">
+                Tach kich ban thanh nhieu canh co thoi luong, bo canh, camera va
+                nhan cue noi dung ro rang.
+              </p>
+            </div>
+
+            <span class="panel-pill">Scene planner</span>
+          </div>
+
+          <div class="action-row">
+            <button class="primary-button" id="splitScenesButton" type="button">
+              Tach canh tu dong
+            </button>
+            <button class="secondary-button" id="rebalanceScenesButton" type="button">
+              Can lai thoi luong
+            </button>
+            <button class="ghost-button" id="addSceneButton" type="button">
+              Them canh
+            </button>
+          </div>
+
+          <div class="stats-strip" id="sceneStats"></div>
+          <div class="scene-list" id="sceneList"></div>
+        </section>
+
+        <section class="step-panel" data-step="4">
+          <div class="panel-heading">
+            <div>
+              <p class="step-kicker">Buoc 5</p>
+              <h2>Prompts</h2>
+              <p class="panel-description">
+                Sinh prompt hinh anh, motion, voice-over va subtitle cho tung
+                canh de dua sang quy trinh tao video.
+              </p>
+            </div>
+
+            <span class="panel-pill">Prompt package</span>
+          </div>
+
+          <div class="action-row">
+            <button class="primary-button" id="generatePromptsButton" type="button">
+              Tao prompts cho tat ca canh
+            </button>
+            <button class="secondary-button" id="copyMasterPromptButton" type="button">
+              Sao chep character prompt
+            </button>
+          </div>
+
+          <div class="grid-layout two-columns">
+            <article class="card card-accent">
+              <div class="card-title-row">
+                <h3>Master visual brief</h3>
+                <span class="mini-tag mini-tag-highlight">Style lock</span>
+              </div>
+              <p class="preview-copy" id="masterPromptPreview"></p>
+            </article>
+
+            <article class="card">
+              <div class="card-title-row">
+                <h3>Nhac nho khi prompt</h3>
+                <span class="mini-tag">Chat luong</span>
+              </div>
+              <div class="tip-stack">
+                <p>Giu mot nhan vat xuyen suot de tranh thay doi guong mat qua cac canh.</p>
+                <p>Them boi canh, anh sang, camera va cam xuc cho moi canh de ket qua ro hon.</p>
+                <p>Khi sua noi dung phan canh, nen tao lai prompts de dong bo voi loi thoai moi.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="prompt-list" id="promptList"></div>
+        </section>
+
+        <section class="step-panel" data-step="5">
+          <div class="panel-heading">
+            <div>
+              <p class="step-kicker">Buoc 6</p>
+              <h2>Xuat ban</h2>
+              <p class="panel-description">
+                Tong hop production brief, kiem tra do san sang va xuat du lieu
+                de dua sang pipeline dung video.
+              </p>
+            </div>
+
+            <span class="panel-pill">Delivery pack</span>
+          </div>
+
+          <div class="grid-layout two-columns">
+            <article class="card">
+              <div class="card-title-row">
+                <h3>Do san sang</h3>
+                <span class="mini-tag">Checklist</span>
+              </div>
+              <div class="progress-block">
+                <div class="progress-bar">
+                  <span id="readinessBar"></span>
+                </div>
+                <p class="progress-copy" id="readinessCopy"></p>
+              </div>
+              <div class="checklist" id="readinessChecklist"></div>
+            </article>
+
+            <article class="card">
+              <div class="card-title-row">
+                <h3>Xuat du lieu</h3>
+                <span class="mini-tag mini-tag-highlight">Safe export</span>
+              </div>
+              <div class="action-grid">
+                <button class="primary-button" id="exportJsonButton" type="button">
+                  Tai JSON
+                </button>
+                <button class="secondary-button" id="exportMarkdownButton" type="button">
+                  Tai Markdown
+                </button>
+                <button class="ghost-button" id="copyBriefButton" type="button">
+                  Sao chep brief
+                </button>
+              </div>
+              <p class="card-copy">
+                Goi xuat khong bao gom API key, phu hop de chia se cho editor,
+                prompt engineer hoac team san xuat.
+              </p>
+            </article>
+          </div>
+
+          <article class="card">
+            <div class="card-title-row">
+              <h3>Production brief preview</h3>
+              <button class="ghost-button" id="refreshBriefButton" type="button">
+                Lam moi preview
+              </button>
+            </div>
+            <textarea id="publishPreview" rows="18" readonly></textarea>
+          </article>
+        </section>
+      </main>
+
+      <footer class="wizard-dock">
+        <button class="ghost-button" id="prevStepButton" type="button">
+          Quay lai
+        </button>
+        <p class="dock-status" id="dockStatus"></p>
+        <button class="primary-button" id="nextStepButton" type="button">
+          Tiep tuc
+        </button>
+      </footer>
+    </div>
+
+    <div class="toast-rack" id="toastRack" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

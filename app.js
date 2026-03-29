@@ -7,20 +7,32 @@ const steps = [
   { label: "Sản xuất", description: "Xuất bàn giao", icon: "&#128230;" },
 ];
 
+const durationPresetOptions = [
+  { value: "8s", label: "8s", seconds: 8 },
+  { value: "16s", label: "16s", seconds: 16 },
+  { value: "30s", label: "30s", seconds: 30 },
+  { value: "60s", label: "60s", seconds: 60 },
+  { value: "90s", label: "90s", seconds: 90 },
+  { value: "120s", label: "2 phut", seconds: 120 },
+  { value: "180s", label: "3 phut", seconds: 180 },
+];
+
+const durationPresetValues = new Set(durationPresetOptions.map((item) => item.value));
+
 const durationSecondsMap = {
-  "30s": 30,
+  ...Object.fromEntries(durationPresetOptions.map((item) => [item.value, item.seconds])),
   "45s": 45,
-  "60s": 60,
-  "90s": 90,
-  "120s": 120,
 };
 
 const durationSceneCountMap = {
+  "8s": 1,
+  "16s": 2,
   "30s": 4,
   "45s": 5,
   "60s": 6,
   "90s": 8,
   "120s": 10,
+  "180s": 12,
 };
 
 const visualStyleOptions = [
@@ -57,6 +69,27 @@ const voiceRegionPresets = [
     value: "Miền Nam",
     summary: "Thân thiện, dễ nghe, hợp video truyền cảm hứng và CTA tự nhiên.",
     color: "#ff7a86",
+  },
+];
+
+const dialogueLanguageOptions = [
+  {
+    id: "vn",
+    code: "VN",
+    title: "Chỉ tiếng Việt",
+    summary: (voice) => `Lời thoại giọng ${voice}`,
+  },
+  {
+    id: "vnus",
+    code: "VNUS",
+    title: "Song ngữ",
+    summary: () => "Tiếng Việt + tiếng Anh",
+  },
+  {
+    id: "us",
+    code: "US",
+    title: "Chỉ tiếng Anh",
+    summary: () => "English dialogue only",
   },
 ];
 
@@ -140,10 +173,12 @@ const projectPresets = {
       "Hành trình học tập chăm chỉ của một bạn học sinh gặp khó khăn nhưng vẫn kiên trì và đạt thành công, truyền cảm hứng cho học sinh THPT.",
     audience: "THPT",
     duration: "60s",
+    customDurationSeconds: 60,
     objective: "Tạo động lực học tập và rèn kỷ luật bản thân",
     tone: "Truyền cảm hứng",
     visualStyle: "Cinematic classroom",
     voice: "Miền Bắc",
+    dialogueLanguage: "vn",
     format: "YouTube (16:9)",
     narrationMode: "Kể chuyện",
     videoPlatform: "veo3",
@@ -177,6 +212,18 @@ const projectPresets = {
 };
 
 const storageKey = "edu-video-factory-state-v1";
+const authStorageKey = "edu-video-factory-auth-v1";
+const accountStorageKey = "edu-video-factory-accounts-v1";
+const maxDurationSeconds = 600;
+
+const defaultLoginAccounts = [
+  {
+    username: "VIETHUNG",
+    password: "123456",
+    displayName: "VIETHUNG",
+    role: "Quan tri he thong",
+  },
+];
 
 const defaultState = {
   currentStep: 0,
@@ -186,7 +233,9 @@ const defaultState = {
     topic: "",
     audience: "THCS",
     duration: "60s",
+    customDurationSeconds: 60,
     voice: "Miền Bắc",
+    dialogueLanguage: "vn",
     objective: "",
     visualStyle: "Hoạt hình 3D Pixar",
     tone: "Vượt khó và bền bỉ",
@@ -214,9 +263,25 @@ const defaultState = {
 };
 
 let state = loadState();
+let loginAccounts = loadAccounts();
+let authState = loadAuthState();
 let saveTimer = null;
 
+if (authState && !loginAccounts.some((account) => account.username === authState.username)) {
+  authState = null;
+  saveAuthState();
+}
+
 const elements = {
+  appShell: document.getElementById("appShell"),
+  loginShell: document.getElementById("loginShell"),
+  loginForm: document.getElementById("loginForm"),
+  loginUsernameInput: document.getElementById("loginUsernameInput"),
+  loginPasswordInput: document.getElementById("loginPasswordInput"),
+  loginButton: document.getElementById("loginButton"),
+  loginError: document.getElementById("loginError"),
+  userBadge: document.getElementById("userBadge"),
+  logoutButton: document.getElementById("logoutButton"),
   saveBadge: document.getElementById("saveBadge"),
   stepper: document.getElementById("stepper"),
   wizardDock: document.querySelector(".wizard-dock"),
@@ -230,6 +295,10 @@ const elements = {
   topicInput: document.getElementById("topicInput"),
   audienceInput: document.getElementById("audienceInput"),
   durationInput: document.getElementById("durationInput"),
+  customDurationWrap: document.getElementById("customDurationWrap"),
+  customDurationInput: document.getElementById("customDurationInput"),
+  dialogueLanguageGrid: document.getElementById("dialogueLanguageGrid"),
+  dialogueLanguageHint: document.getElementById("dialogueLanguageHint"),
   objectiveInput: document.getElementById("objectiveInput"),
   toneInput: document.getElementById("toneInput"),
   voiceInput: document.getElementById("voiceInput"),
@@ -269,16 +338,17 @@ const elements = {
 
 wireStaticInputs();
 wireActions();
+wireAuthActions();
 renderAll({ syncInputs: true });
+renderAuthState();
 
 function wireStaticInputs() {
   bindTextInput(elements.apiKeyInput, ["project", "apiKey"]);
   bindTextInput(elements.topicInput, ["project", "topic"]);
   bindSelectInput(elements.audienceInput, ["project", "audience"]);
-  bindSelectInput(elements.durationInput, ["project", "duration"], () => {
-    renderSceneStats();
-    renderPublishPanel();
-  });
+  elements.durationInput.addEventListener("change", handleDurationPresetChange);
+  elements.customDurationInput.addEventListener("input", handleCustomDurationInput);
+  elements.customDurationInput.addEventListener("change", handleCustomDurationInput);
   bindTextInput(elements.objectiveInput, ["project", "objective"]);
   bindSelectInput(elements.toneInput, ["project", "tone"]);
   bindSelectInput(elements.voiceInput, ["project", "voice"]);
@@ -307,6 +377,54 @@ function wireStaticInputs() {
   );
 }
 
+function wireAuthActions() {
+  elements.loginForm?.addEventListener("submit", handleLoginSubmit);
+  elements.logoutButton?.addEventListener("click", logoutUser);
+}
+
+function handleDurationPresetChange() {
+  if (elements.durationInput.value === "custom") {
+    const defaultCustomSeconds = durationSecondsMap[defaultState.project.duration];
+    const fallbackCustomSeconds =
+      durationPresetValues.has(state.project.duration) &&
+      state.project.customDurationSeconds === defaultCustomSeconds
+        ? getDurationSeconds(state.project.duration)
+        : state.project.customDurationSeconds;
+    const customSeconds = normalizeCustomDurationValue(
+      fallbackCustomSeconds,
+      state.project.duration
+    );
+    state.project.customDurationSeconds = customSeconds;
+    state.project.duration = formatDurationValue(customSeconds);
+  } else {
+    state.project.duration = elements.durationInput.value;
+  }
+
+  scheduleSave();
+  syncDurationControls();
+  renderGlobalSummary();
+  renderStepper();
+  renderSceneStats();
+  renderPublishPanel();
+}
+
+function handleCustomDurationInput() {
+  const rawValue = elements.customDurationInput.value.trim();
+  if (!rawValue) {
+    return;
+  }
+
+  const seconds = normalizeCustomDurationValue(rawValue, state.project.duration);
+  state.project.customDurationSeconds = seconds;
+  state.project.duration = formatDurationValue(seconds);
+  scheduleSave();
+  syncDurationControls();
+  renderGlobalSummary();
+  renderStepper();
+  renderSceneStats();
+  renderPublishPanel();
+}
+
 function wireActions() {
   elements.stepper.addEventListener("click", (event) => {
     const target = event.target.closest("[data-step-index]");
@@ -333,6 +451,20 @@ function wireActions() {
     renderGlobalSummary();
     renderStepper();
     renderVoiceRegionCards();
+    renderDialogueLanguageCards();
+    renderCharacterPreviews();
+    renderPublishPanel();
+  });
+
+  elements.dialogueLanguageGrid?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-dialogue-language]");
+    if (!button) {
+      return;
+    }
+    state.project.dialogueLanguage = button.dataset.dialogueLanguage;
+    scheduleSave();
+    renderDialogueLanguageCards();
+    renderCharacterPreviews();
     renderPublishPanel();
   });
 
@@ -420,7 +552,10 @@ function wireActions() {
     if (!scene) {
       return;
     }
-    scene[field] = field === "duration" ? clampNumber(event.target.value, 1, 180) : event.target.value;
+    scene[field] =
+      field === "duration"
+        ? clampNumber(event.target.value, 1, maxDurationSeconds)
+        : event.target.value;
     scheduleSave();
     renderSceneStats();
     renderPublishPanel();
@@ -484,6 +619,7 @@ function renderAll({ syncInputs = false } = {}) {
   renderStepper();
   renderGlobalSummary();
   renderVoiceRegionCards();
+  renderDialogueLanguageCards();
   renderPlatformCards();
   renderUploadStatuses();
   renderScriptOutline();
@@ -499,7 +635,7 @@ function syncStaticInputs() {
   elements.apiKeyInput.value = state.project.apiKey;
   elements.topicInput.value = state.project.topic;
   elements.audienceInput.value = state.project.audience;
-  elements.durationInput.value = state.project.duration;
+  syncDurationControls();
   elements.objectiveInput.value = state.project.objective;
   elements.toneInput.value = state.project.tone;
   elements.voiceInput.value = state.project.voice;
@@ -514,6 +650,15 @@ function syncStaticInputs() {
   elements.characterOutfitInput.value = state.character.outfit;
   elements.characterPersonalityInput.value = state.character.personality;
   elements.characterVoiceStyleInput.value = state.character.voiceStyle;
+}
+
+function syncDurationControls() {
+  const isPresetValue = durationPresetValues.has(state.project.duration);
+  elements.durationInput.value = isPresetValue ? state.project.duration : "custom";
+  elements.customDurationInput.value = String(
+    normalizeCustomDurationValue(state.project.customDurationSeconds, state.project.duration)
+  );
+  elements.customDurationWrap.hidden = isPresetValue;
 }
 
 function renderPanels() {
@@ -562,7 +707,7 @@ function renderGlobalSummary() {
   elements.heroDescription.textContent = [
     topic ? `Brief: ${truncateText(topic, 88)}` : "Chưa nhập brief",
     state.project.audience,
-    state.project.duration,
+    formatDurationLabel(state.project.duration),
     state.project.voice,
     getPlatformLabel(state.project.videoPlatform),
     `${state.scenes.length} cảnh`,
@@ -589,6 +734,34 @@ function renderVoiceRegionCards() {
       `;
     })
     .join("");
+}
+
+function renderDialogueLanguageCards() {
+  elements.dialogueLanguageGrid.innerHTML = dialogueLanguageOptions
+    .map((option) => {
+      const selected = option.id === state.project.dialogueLanguage;
+      const summary =
+        typeof option.summary === "function" ? option.summary(state.project.voice) : option.summary;
+
+      return `
+        <button
+          class="dialogue-card ${selected ? "is-selected" : ""}"
+          type="button"
+          data-dialogue-language="${option.id}"
+        >
+          <div class="dialogue-card-head">
+            <div class="dialogue-card-title">
+              <span class="dialogue-card-code">${option.code}</span>
+              <strong>${option.title}</strong>
+            </div>
+          </div>
+          <p>${summary}</p>
+        </button>
+      `;
+    })
+    .join("");
+
+  elements.dialogueLanguageHint.textContent = buildDialogueLanguageHint();
 }
 
 function renderPlatformCards() {
@@ -693,7 +866,7 @@ function renderSceneStats() {
     </article>
     <article class="stat-pill">
       <span>Thời lượng mục tiêu</span>
-      <strong>${targetDuration}s</strong>
+      <strong>${formatDurationLabel(state.project.duration)}</strong>
     </article>
     <article class="stat-pill">
       <span>Cộng dồn cảnh</span>
@@ -775,7 +948,7 @@ function renderSceneList() {
                 data-scene-id="${scene.id}"
                 type="number"
                 min="1"
-                max="180"
+                max="${maxDurationSeconds}"
                 value="${Number(scene.duration || 0)}"
               />
             </label>
@@ -958,7 +1131,7 @@ function generateScriptDraft() {
     return;
   }
 
-  const beatCount = durationSceneCountMap[state.project.duration] || 6;
+  const beatCount = getDurationSceneCount(state.project.duration);
   const topic = cleanupSentence(state.project.topic);
   const objective = cleanupSentence(state.project.objective || "truyền cảm hứng và tạo hành động cụ thể");
   const audience = state.project.audience.toLowerCase();
@@ -1015,7 +1188,7 @@ function generateScenesFromScript() {
   }
 
   const profile = getCharacterProfile();
-  const target = durationSceneCountMap[state.project.duration] || 6;
+  const target = getDurationSceneCount(state.project.duration);
   const sentences = expandToTarget(splitIntoSentences(state.script.content), target);
   const groups = groupToTarget(sentences, target);
   const durations = buildSceneDurations(groups.length, getDurationSeconds(state.project.duration));
@@ -1122,11 +1295,7 @@ function generatePromptPack() {
         `Keep the same character proportions, face and wardrobe across the sequence.`,
         `Emphasize ${visualKeywords || "the core learning moment"}.`,
       ].join(" "),
-      voice: [
-        `Vietnamese voice-over, ${state.project.voice}.`,
-        `Delivery style: ${state.project.tone.toLowerCase()}.`,
-        `Read naturally with educational pacing: "${scene.narration}"`,
-      ].join(" "),
+      voice: buildSceneVoicePrompt(scene),
       subtitle: buildSubtitle(scene.narration),
       negative:
         "blurry, low detail, extra fingers, duplicate face, bad anatomy, broken hands, text, watermark, logo, distorted eyes",
@@ -1157,6 +1326,9 @@ function buildExportPayload() {
     ...state,
     project: {
       ...state.project,
+      durationLabel: formatDurationLabel(state.project.duration),
+      durationSeconds: getDurationSeconds(state.project.duration),
+      dialogueLanguageLabel: getDialogueLanguageLabel(state.project.dialogueLanguage),
       apiKey: redactSecret(state.project.apiKey),
     },
   };
@@ -1205,8 +1377,9 @@ function buildMarkdownExport() {
     "## 1. Cấu hình dự án",
     `- Chủ đề: ${safeProject.topic || "_"}`,
     `- Đối tượng: ${safeProject.audience}`,
-    `- Thời lượng: ${safeProject.duration}`,
+    `- Thời lượng: ${formatDurationLabel(safeProject.duration)}`,
     `- Giọng đọc: ${safeProject.voice}`,
+    `- Ngôn ngữ lời thoại: ${getDialogueLanguageLabel(safeProject.dialogueLanguage)}`,
     `- Mục tiêu: ${safeProject.objective || "_"}`,
     `- Tông nội dung: ${safeProject.tone}`,
     `- Phong cách hình ảnh: ${safeProject.visualStyle}`,
@@ -1248,6 +1421,7 @@ function buildMasterCharacterPrompt() {
     `Trang phục và đạo cụ: ${profile.outfit}.`,
     `Tính cách: ${profile.personality}.`,
     `Chất giọng và phong thái thể hiện: ${profile.voiceStyle}.`,
+    `Ngôn ngữ lời thoại trong video prompt: ${getDialogueLanguageLabel(state.project.dialogueLanguage)}.`,
     `Phong cách hình ảnh: ${state.project.visualStyle}.`,
     `Giữ cùng một gương mặt, tỷ lệ cơ thể, trang phục và nhận diện ở mọi cảnh.`,
   ].join(" ");
@@ -1358,6 +1532,157 @@ function loadState() {
   }
 }
 
+function loadAccounts() {
+  try {
+    const raw = localStorage.getItem(accountStorageKey);
+    if (!raw) {
+      saveAccounts(defaultLoginAccounts);
+      return cloneState(defaultLoginAccounts);
+    }
+
+    const parsed = JSON.parse(raw);
+    const normalizedAccounts = Array.isArray(parsed) ? parsed.map(normalizeAccount).filter(Boolean) : [];
+    const ensuredAccounts = ensureDefaultAccount(normalizedAccounts);
+    saveAccounts(ensuredAccounts);
+    return ensuredAccounts;
+  } catch (error) {
+    saveAccounts(defaultLoginAccounts);
+    return cloneState(defaultLoginAccounts);
+  }
+}
+
+function saveAccounts(accounts) {
+  localStorage.setItem(accountStorageKey, JSON.stringify(accounts.map(normalizeAccount).filter(Boolean)));
+}
+
+function ensureDefaultAccount(accounts) {
+  const normalizedAccounts = Array.isArray(accounts) ? accounts : [];
+  const defaultAccount = normalizeAccount(defaultLoginAccounts[0]);
+  const remainingAccounts = normalizedAccounts.filter(
+    (account) => account.username !== defaultAccount.username
+  );
+
+  return [defaultAccount, ...remainingAccounts].filter(Boolean);
+}
+
+function loadAuthState() {
+  try {
+    const raw = localStorage.getItem(authStorageKey);
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw);
+    if (!parsed?.username) {
+      return null;
+    }
+
+    return {
+      username: normalizeUsername(parsed.username),
+      displayName: String(parsed.displayName || normalizeUsername(parsed.username)),
+      role: String(parsed.role || "Nguoi dung"),
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveAuthState() {
+  if (!authState) {
+    localStorage.removeItem(authStorageKey);
+    return;
+  }
+
+  localStorage.setItem(authStorageKey, JSON.stringify(authState));
+}
+
+function handleLoginSubmit(event) {
+  event.preventDefault();
+
+  const username = normalizeUsername(elements.loginUsernameInput.value);
+  const password = elements.loginPasswordInput.value.trim();
+
+  if (!username || !password) {
+    setLoginError("Vui long nhap day du ten dang nhap va mat khau.");
+    return;
+  }
+
+  const account = loginAccounts.find(
+    (item) => item.username === username && item.password === password
+  );
+
+  if (!account) {
+    setLoginError("Sai ten dang nhap hoac mat khau. Vui long thu lai.");
+    elements.loginPasswordInput.select();
+    return;
+  }
+
+  authState = {
+    username: account.username,
+    displayName: account.displayName || account.username,
+    role: account.role || "Nguoi dung",
+  };
+
+  saveAuthState();
+  setLoginError("");
+  elements.loginPasswordInput.value = "";
+  renderAuthState();
+  showToast(`Xin chao ${authState.displayName}.`);
+}
+
+function logoutUser() {
+  authState = null;
+  saveAuthState();
+  renderAuthState();
+  setLoginError("");
+  elements.loginForm.reset();
+}
+
+function renderAuthState() {
+  const isAuthenticated = Boolean(authState?.username);
+
+  elements.loginShell.hidden = isAuthenticated;
+  elements.appShell.classList.toggle("is-auth-hidden", !isAuthenticated);
+  elements.userBadge.textContent = isAuthenticated
+    ? authState.displayName || authState.username
+    : "Khach";
+  elements.logoutButton.hidden = !isAuthenticated;
+
+  if (!isAuthenticated) {
+    window.setTimeout(() => {
+      elements.loginUsernameInput?.focus();
+    }, 0);
+  }
+}
+
+function setLoginError(message) {
+  elements.loginError.textContent = message;
+  elements.loginError.hidden = !message;
+}
+
+function normalizeAccount(account) {
+  if (!account || typeof account !== "object") {
+    return null;
+  }
+
+  const username = normalizeUsername(account.username);
+  const password = String(account.password || "").trim();
+  if (!username || !password) {
+    return null;
+  }
+
+  return {
+    username,
+    password,
+    displayName: String(account.displayName || username).trim() || username,
+    role: String(account.role || "Nguoi dung").trim() || "Nguoi dung",
+  };
+}
+
+function normalizeUsername(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
 function normalizeScene(scene) {
   if (!scene || typeof scene !== "object") {
     return null;
@@ -1369,7 +1694,7 @@ function normalizeScene(scene) {
     visual: String(scene.visual || ""),
     camera: String(scene.camera || ""),
     transition: String(scene.transition || ""),
-    duration: clampNumber(scene.duration, 1, 180),
+    duration: clampNumber(scene.duration, 1, maxDurationSeconds),
   };
 }
 
@@ -1576,8 +1901,129 @@ function buildSubtitle(text) {
   return sentences.join(" / ");
 }
 
+function buildDialogueLanguageHint() {
+  if (state.project.dialogueLanguage === "vnus") {
+    return `Song ngữ: lời thoại tiếng Anh sẽ kèm theo dialogue tiếng Việt giọng ${state.project.voice} trong video prompt.`;
+  }
+  if (state.project.dialogueLanguage === "us") {
+    return "Chỉ tiếng Anh: video prompt sẽ chỉ dùng dialogue tiếng Anh, không chèn lời thoại tiếng Việt.";
+  }
+  return `Chỉ tiếng Việt: video prompt sẽ ưu tiên toàn bộ lời thoại bằng tiếng Việt giọng ${state.project.voice}.`;
+}
+
+function buildSceneVoicePrompt(scene) {
+  const narration = scene.narration || "";
+
+  if (state.project.dialogueLanguage === "vnus") {
+    return [
+      `Bilingual dialogue, Vietnamese (${state.project.voice}) and English.`,
+      `Keep Vietnamese as the primary spoken line, then add a concise English counterpart with the same meaning.`,
+      `Delivery style: ${state.project.tone.toLowerCase()}.`,
+      `Dialogue content: "${narration}"`,
+    ].join(" ");
+  }
+
+  if (state.project.dialogueLanguage === "us") {
+    return [
+      "English dialogue only.",
+      `Translate the scene meaning naturally into English while preserving the educational tone: ${state.project.tone.toLowerCase()}.`,
+      `Dialogue intent: "${narration}"`,
+    ].join(" ");
+  }
+
+  return [
+    `Vietnamese dialogue only, ${state.project.voice}.`,
+    `Delivery style: ${state.project.tone.toLowerCase()}.`,
+    `Read naturally with educational pacing: "${narration}"`,
+  ].join(" ");
+}
+
+function getDialogueLanguageLabel(dialogueLanguageId) {
+  const option = dialogueLanguageOptions.find((item) => item.id === dialogueLanguageId);
+  if (!option) {
+    return "Chỉ tiếng Việt";
+  }
+  return `${option.code} - ${option.title}`;
+}
+
 function getDurationSeconds(durationPreset) {
-  return durationSecondsMap[durationPreset] || 30;
+  if (durationSecondsMap[durationPreset]) {
+    return durationSecondsMap[durationPreset];
+  }
+
+  const parsedSeconds = parseDurationSeconds(durationPreset);
+  return parsedSeconds || durationSecondsMap[defaultState.project.duration];
+}
+
+function getDurationSceneCount(durationValue) {
+  const normalizedDuration = normalizeDurationValue(durationValue, durationValue);
+  if (durationSceneCountMap[normalizedDuration]) {
+    return durationSceneCountMap[normalizedDuration];
+  }
+
+  const seconds = getDurationSeconds(durationValue);
+  return Math.max(1, Math.min(14, Math.round(seconds / 12)));
+}
+
+function formatDurationValue(seconds) {
+  return `${clampNumber(seconds, 1, maxDurationSeconds)}s`;
+}
+
+function formatDurationLabel(durationValue) {
+  const seconds = getDurationSeconds(durationValue);
+  if (seconds === 120) {
+    return "2 phút";
+  }
+  if (seconds === 180) {
+    return "3 phút";
+  }
+  return `${seconds}s`;
+}
+
+function parseDurationSeconds(value) {
+  if (typeof value === "number") {
+    return clampNumber(value, 1, maxDurationSeconds);
+  }
+
+  const normalized = toAsciiSearchText(value);
+  if (!normalized || normalized === "custom") {
+    return null;
+  }
+
+  if (normalized.includes("phut")) {
+    const matchMinutes = normalized.match(/\d+/);
+    if (matchMinutes) {
+      return clampNumber(Number(matchMinutes[0]) * 60, 1, maxDurationSeconds);
+    }
+  }
+
+  const matchSeconds = normalized.match(/\d+/);
+  if (!matchSeconds) {
+    return null;
+  }
+
+  return clampNumber(Number(matchSeconds[0]), 1, maxDurationSeconds);
+}
+
+function normalizeCustomDurationValue(customDurationSeconds, fallbackDuration) {
+  const parsedSeconds =
+    parseDurationSeconds(customDurationSeconds) || parseDurationSeconds(fallbackDuration);
+
+  return clampNumber(
+    parsedSeconds || durationSecondsMap[defaultState.project.duration],
+    1,
+    maxDurationSeconds
+  );
+}
+
+function normalizeDurationValue(value, customDurationSeconds) {
+  if (durationSecondsMap[value]) {
+    return value;
+  }
+
+  return formatDurationValue(
+    normalizeCustomDurationValue(customDurationSeconds, value || defaultState.project.duration)
+  );
 }
 
 function cleanupSentence(text) {
@@ -1610,8 +2056,14 @@ function redactSecret(secret) {
 function normalizeProjectState(project) {
   return {
     ...project,
+    duration: normalizeDurationValue(project.duration, project.customDurationSeconds),
+    customDurationSeconds: normalizeCustomDurationValue(
+      project.customDurationSeconds,
+      project.duration
+    ),
     audience: normalizeAudienceValue(project.audience),
     voice: normalizeVoiceValue(project.voice),
+    dialogueLanguage: normalizeDialogueLanguageValue(project.dialogueLanguage),
     visualStyle: normalizeVisualStyleValue(project.visualStyle),
     tone: normalizeToneValue(project.tone),
     format: normalizeFormatValue(project.format),
@@ -1661,6 +2113,17 @@ function normalizeVoiceValue(value) {
     return "Miền Bắc";
   }
   return defaultState.project.voice;
+}
+
+function normalizeDialogueLanguageValue(value) {
+  const normalized = toAsciiSearchText(value);
+  if (normalized.includes("vnus") || normalized.includes("song ngu") || normalized.includes("bilingual")) {
+    return "vnus";
+  }
+  if (normalized === "us" || normalized.includes("tieng anh") || normalized.includes("english")) {
+    return "us";
+  }
+  return "vn";
 }
 
 function normalizeVisualStyleValue(value) {

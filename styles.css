@@ -444,6 +444,11 @@ body[data-auth-view="app"] .login-shell {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.icon-button-svg {
+  width: 18px;
+  height: 18px;
+}
+
 .stepper {
   display: flex;
   flex-wrap: nowrap;

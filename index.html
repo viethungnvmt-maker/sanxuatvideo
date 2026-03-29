@@ -18,75 +18,58 @@
 
     <div class="app-shell">
       <header class="topbar">
-        <div class="topbar-main">
-          <div class="brand">
-            <div class="brand-mark" aria-hidden="true">
-              <span class="brand-mark-core">AI</span>
+        <div class="site-container">
+          <div class="topbar-main">
+            <div class="brand">
+              <div class="brand-mark" aria-hidden="true">
+                <span class="brand-mark-core">🎬</span>
+              </div>
+              <div class="brand-copy">
+                <p class="eyebrow">AI Video Giáo Dục - Thầy Nguyễn Việt Hùng</p>
+                <h1>XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC</h1>
+              </div>
             </div>
-            <div class="brand-copy">
-              <p class="eyebrow">Xưởng sản xuất video giáo dục</p>
-              <h1>Quy trình sản xuất video AI</h1>
+
+            <div class="topbar-actions">
+              <span class="role-pill">Giáo viên</span>
+              <div class="save-badge" id="saveBadge">Đã lưu</div>
+              <button
+                class="icon-button"
+                id="resetProjectButton"
+                type="button"
+                title="Làm mới dự án"
+                aria-label="Làm mới dự án"
+              >
+                &#8635;
+              </button>
             </div>
           </div>
 
-          <div class="topbar-actions">
-            <span class="role-pill">Giáo viên</span>
-            <div class="save-badge" id="saveBadge">Đang khởi tạo</div>
-            <button
-              class="icon-button"
-              id="resetProjectButton"
-              type="button"
-              title="Làm mới dự án"
-              aria-label="Làm mới dự án"
-            >
-              &#8635;
-            </button>
-          </div>
+          <nav class="stepper" id="stepper" aria-label="Quy trình sản xuất"></nav>
         </div>
-
-        <nav class="stepper" id="stepper" aria-label="Quy trình sản xuất"></nav>
       </header>
 
       <section class="hero">
-        <p class="hero-kicker">XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC</p>
-        <h2 class="hero-title">XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC</h2>
-        <p class="hero-subline">
-          Phát triển bởi thầy Nguyễn Việt Hùng - Zalo 036.38.31.337
-        </p>
+        <div class="site-container hero-inner">
+          <h2 class="hero-title">🎬 XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC</h2>
+          <p class="hero-subline">
+            Phát triển bởi thầy Nguyễn Việt Hùng - Zalo 036.38.31.337
+          </p>
 
-        <div class="hero-chip-row">
-          <span class="hero-chip hero-chip-primary" id="heroHeadline">
-            Brief: Chưa nhập chủ đề
-          </span>
-          <span class="hero-chip">
-            <span class="hero-chip-label">Đối tượng</span>
-            <strong id="heroAudience">THCS</strong>
-          </span>
-          <span class="hero-chip">
-            <span class="hero-chip-label">Thời lượng</span>
-            <strong id="heroDuration">60s</strong>
-          </span>
-          <span class="hero-chip">
-            <span class="hero-chip-label">Giọng đọc</span>
-            <strong id="heroVoice">Miền Bắc</strong>
-          </span>
-          <span class="hero-chip">
-            <span class="hero-chip-label">Nền tảng</span>
-            <strong id="heroPlatform">Veo3</strong>
-          </span>
-          <span class="hero-chip">
-            <span class="hero-chip-label">Số cảnh</span>
-            <strong id="heroScenes">0</strong>
-          </span>
+          <div class="hero-chip-row">
+            <span class="hero-chip hero-chip-primary" id="heroHeadline">
+              ✨ AI-Powered
+            </span>
+            <span class="hero-chip">🎯 Veo3 · Sora 2 · Seedance · Grok</span>
+          </div>
+
+          <p class="hero-description" id="heroDescription">
+            Chưa nhập brief · THCS · 60s · Miền Bắc · Veo3 · 0 cảnh
+          </p>
         </div>
-
-        <p class="hero-description" id="heroDescription">
-          Nhập thông tin brief để AI đề xuất cấu hình phù hợp cho toàn bộ quy
-          trình sản xuất.
-        </p>
       </section>
 
-      <main class="panel-stack">
+      <main class="panel-stack site-container">
         <section class="step-panel is-active config-panel" data-step="0">
           <div class="config-intro">
             <p class="config-heading">&#9881; Cấu hình dự án</p>
@@ -596,21 +579,25 @@
       </main>
 
       <footer class="wizard-dock">
-        <button class="ghost-button" id="prevStepButton" type="button">
-          Quay lại
-        </button>
-        <p class="dock-status" id="dockStatus"></p>
-        <button class="primary-button" id="nextStepButton" type="button">
-          Tiếp tục
-        </button>
+        <div class="site-container wizard-dock-inner">
+          <button class="ghost-button" id="prevStepButton" type="button">
+            Quay lại
+          </button>
+          <p class="dock-status" id="dockStatus"></p>
+          <button class="primary-button" id="nextStepButton" type="button">
+            Tiếp tục
+          </button>
+        </div>
       </footer>
 
       <footer class="app-footer">
-        <p>XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC - Tạo video giáo dục AI</p>
-        <p>
-          Phát triển bởi thầy Nguyễn Việt Hùng - Zalo 036.38.31.337 - Đang dùng:
-          <span id="footerPlatform">Veo3</span>
-        </p>
+        <div class="site-container app-footer-inner">
+          <p>XƯỞNG SẢN XUẤT VIDEO GIÁO DỤC - Tạo video giáo dục AI</p>
+          <p>
+            Phát triển bởi thầy Nguyễn Việt Hùng - Zalo 036.38.31.337 - Đang dùng:
+            <span id="footerPlatform">Veo3</span>
+          </p>
+        </div>
       </footer>
     </div>
 

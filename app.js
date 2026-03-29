@@ -222,12 +222,7 @@ const elements = {
   wizardDock: document.querySelector(".wizard-dock"),
   heroHeadline: document.getElementById("heroHeadline"),
   heroDescription: document.getElementById("heroDescription"),
-  heroAudience: document.getElementById("heroAudience"),
-  heroDuration: document.getElementById("heroDuration"),
-  heroVoice: document.getElementById("heroVoice"),
-  heroPlatform: document.getElementById("heroPlatform"),
   footerPlatform: document.getElementById("footerPlatform"),
-  heroScenes: document.getElementById("heroScenes"),
   panels: Array.from(document.querySelectorAll(".step-panel")),
   dockStatus: document.getElementById("dockStatus"),
   prevStepButton: document.getElementById("prevStepButton"),
@@ -563,21 +558,16 @@ function renderStepper() {
 
 function renderGlobalSummary() {
   const topic = state.project.topic.trim();
-  elements.heroHeadline.textContent = topic
-    ? `Brief: ${truncateText(topic, 72)}`
-    : "Brief: Chưa nhập chủ đề";
+  elements.heroHeadline.textContent = "✨ AI-Powered";
   elements.heroDescription.textContent = [
-    state.project.visualStyle,
-    state.project.tone,
-    state.project.format,
-    state.project.narrationMode,
-  ].join(" | ");
-  elements.heroAudience.textContent = state.project.audience;
-  elements.heroDuration.textContent = state.project.duration;
-  elements.heroVoice.textContent = state.project.voice;
-  elements.heroPlatform.textContent = getPlatformLabel(state.project.videoPlatform);
+    topic ? `Brief: ${truncateText(topic, 88)}` : "Chưa nhập brief",
+    state.project.audience,
+    state.project.duration,
+    state.project.voice,
+    getPlatformLabel(state.project.videoPlatform),
+    `${state.scenes.length} cảnh`,
+  ].join(" · ");
   elements.footerPlatform.textContent = getPlatformLabel(state.project.videoPlatform);
-  elements.heroScenes.textContent = String(state.scenes.length);
 }
 
 function renderVoiceRegionCards() {
@@ -1334,11 +1324,7 @@ function updateSaveBadge(overrideText) {
     elements.saveBadge.textContent = "Chưa lưu";
     return;
   }
-  const formatter = new Intl.DateTimeFormat("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  elements.saveBadge.textContent = `Đã lưu lúc ${formatter.format(state.savedAt)}`;
+  elements.saveBadge.textContent = "Đã lưu";
 }
 
 function loadState() {

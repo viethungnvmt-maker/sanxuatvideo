@@ -85,6 +85,18 @@ button:disabled {
   display: none;
 }
 
+.login-shell[hidden] {
+  display: none !important;
+}
+
+body[data-auth-view="login"] .app-shell {
+  display: none !important;
+}
+
+body[data-auth-view="app"] .login-shell {
+  display: none !important;
+}
+
 .login-shell {
   position: relative;
   z-index: 2;
@@ -315,14 +327,6 @@ button:disabled {
 .login-note-card p {
   color: #a5b4fc;
   line-height: 1.9;
-}
-
-.login-note-card p + p {
-  margin-top: 12px;
-}
-
-.login-account-note strong {
-  color: #f8fafc;
 }
 
 .site-container {

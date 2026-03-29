@@ -1641,12 +1641,19 @@ function logoutUser() {
 function renderAuthState() {
   const isAuthenticated = Boolean(authState?.username);
 
+  document.body.dataset.authView = isAuthenticated ? "app" : "login";
   elements.loginShell.hidden = isAuthenticated;
+  elements.loginShell.style.display = isAuthenticated ? "none" : "grid";
   elements.appShell.classList.toggle("is-auth-hidden", !isAuthenticated);
+  elements.appShell.style.display = isAuthenticated ? "block" : "none";
   elements.userBadge.textContent = isAuthenticated
     ? authState.displayName || authState.username
     : "Khach";
   elements.logoutButton.hidden = !isAuthenticated;
+
+  if (isAuthenticated) {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
 
   if (!isAuthenticated) {
     window.setTimeout(() => {

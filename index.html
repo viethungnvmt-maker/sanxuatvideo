@@ -231,6 +231,19 @@
                 placeholder="AIzaSy..."
                 autocomplete="off"
               />
+              <div class="api-key-actions">
+                <a
+                  class="mini-button button-link"
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Lấy API key
+                </a>
+                <small class="field-note">
+                  Mở Google AI Studio để tạo Gemini API key chính thức.
+                </small>
+              </div>
             </label>
           </article>
 
@@ -469,46 +482,65 @@
             <span class="panel-pill">Bản nháp lời dẫn</span>
           </div>
 
-          <div class="action-row">
-            <button class="primary-button" id="generateScriptButton" type="button">
-              Tạo kịch bản mẫu
-            </button>
-            <button class="secondary-button" id="refineScriptButton" type="button">
-              Chuẩn hóa giọng đọc
-            </button>
-            <button class="ghost-button" id="clearScriptButton" type="button">
-              Xóa kịch bản
-            </button>
+          <div class="script-generation-view" id="scriptGenerationView" hidden>
+            <div class="script-generation-copy">
+              <p class="script-generation-icon">📝</p>
+              <h3>Kịch bản</h3>
+              <p>AI tạo kịch bản hoàn chỉnh từ chủ đề của bạn</p>
+            </div>
+            <div class="script-generation-pill">
+              <span class="script-generation-spinner" aria-hidden="true"></span>
+              <strong id="scriptGenerationStatus">Đang tạo kịch bản...</strong>
+            </div>
+            <div class="script-generation-progress">
+              <span id="scriptGenerationBar"></span>
+            </div>
           </div>
 
-          <div class="grid-layout two-columns">
-            <article class="card">
-              <label class="field">
-                <span>Tiêu đề video</span>
-                <input
-                  id="scriptTitleInput"
-                  type="text"
-                  placeholder="Đặt tiêu đề ngắn gọn, dễ nhớ"
-                />
-              </label>
+          <div class="script-editor-content" id="scriptEditorContent">
+            <div class="action-row">
+              <button class="primary-button" id="generateScriptButton" type="button">
+                Tạo kịch bản mẫu
+              </button>
+              <button class="secondary-button" id="refineScriptButton" type="button">
+                Chuẩn hóa giọng đọc
+              </button>
+              <button class="ghost-button" id="clearScriptButton" type="button">
+                Xóa kịch bản
+              </button>
+            </div>
 
-              <label class="field">
-                <span>Nội dung kịch bản</span>
-                <textarea
-                  id="scriptContentInput"
-                  rows="16"
-                  placeholder="Kịch bản sẽ xuất hiện ở đây sau khi bạn tạo mẫu..."
-                ></textarea>
-              </label>
-            </article>
+            <div class="grid-layout two-columns">
+              <article class="card">
+                <label class="field">
+                  <span>Tiêu đề video</span>
+                  <input
+                    id="scriptTitleInput"
+                    type="text"
+                    placeholder="Đặt tiêu đề ngắn gọn, dễ nhớ"
+                  />
+                </label>
 
-            <aside class="card card-soft">
-              <div class="card-title-row">
-                <h3>Khung nội dung gợi ý</h3>
-                <span class="mini-tag">Tự cập nhật</span>
-              </div>
-              <div id="scriptOutline" class="outline-stack"></div>
-            </aside>
+                <label class="field">
+                  <span>Nội dung kịch bản</span>
+                  <textarea
+                    id="scriptContentInput"
+                    rows="16"
+                    placeholder="Kịch bản sẽ xuất hiện ở đây sau khi bạn tạo mẫu..."
+                  ></textarea>
+                </label>
+              </article>
+
+              <aside class="card card-soft">
+                <div class="card-title-row">
+                  <h3>Khung nội dung gợi ý</h3>
+                  <span class="mini-tag">Tự cập nhật</span>
+                </div>
+                <div id="scriptOutline" class="outline-stack"></div>
+              </aside>
+            </div>
+
+            <div id="scriptScenePackage" class="script-scene-package"></div>
           </div>
         </section>
 
@@ -526,158 +558,216 @@
             <span class="panel-pill">Thiết kế nhân vật</span>
           </div>
 
-          <article class="card">
-            <div class="card-title-row">
-              <h3>Thư viện nhân vật</h3>
-              <span class="mini-tag mini-tag-highlight">Nhất quán</span>
+          <div class="character-generation-view" id="characterGenerationView" hidden>
+            <div class="character-generation-copy">
+              <p class="character-generation-icon">🎭</p>
+              <h3>Character Bible</h3>
+              <p>Hồ sơ nhân vật siêu chi tiết, giữ đồng nhất trên mọi cảnh và prompt.</p>
             </div>
-            <div class="character-grid" id="characterPresetGrid"></div>
-          </article>
+            <div class="character-generation-pill">
+              <span class="character-generation-spinner" aria-hidden="true"></span>
+              <strong id="characterGenerationStatus">Đang phân tích nhân vật...</strong>
+            </div>
+            <div class="character-generation-progress">
+              <span id="characterGenerationBar"></span>
+            </div>
+          </div>
 
-          <div class="grid-layout two-columns">
+          <div class="character-editor-content" id="characterEditorContent">
+            <div class="action-row">
+              <button class="primary-button" id="analyzeCharacterButton" type="button">
+                Phân tích và tạo nhân vật
+              </button>
+            </div>
+
+            <div id="characterBiblePreview" class="character-bible-preview"></div>
+
             <article class="card">
               <div class="card-title-row">
-                <h3>Tùy biến nhân vật</h3>
-                <span class="mini-tag">Chi tiết hóa</span>
+                <h3>Thư viện nhân vật</h3>
+                <span class="mini-tag mini-tag-highlight">Nhất quán</span>
               </div>
-
-              <div class="grid-layout two-columns">
-                <label class="field">
-                  <span>Tên nhân vật</span>
-                  <input id="characterNameInput" type="text" placeholder="Ví dụ: Minh Anh" />
-                </label>
-
-                <label class="field">
-                  <span>Vai trò</span>
-                  <input id="characterRoleInput" type="text" placeholder="Ví dụ: học sinh lớp 12" />
-                </label>
-              </div>
-
-              <label class="field">
-                <span>Ngoại hình</span>
-                <textarea
-                  id="characterAppearanceInput"
-                  rows="4"
-                  placeholder="Mô tả mặt, tóc, độ tuổi, thần thái, biểu cảm đặc trưng..."
-                ></textarea>
-              </label>
-
-              <label class="field">
-                <span>Trang phục và đạo cụ</span>
-                <input
-                  id="characterOutfitInput"
-                  type="text"
-                  placeholder="Ví dụ: đồng phục học sinh, ba lô, sách vở..."
-                />
-              </label>
-
-              <div class="grid-layout two-columns">
-                <label class="field">
-                  <span>Tính cách</span>
-                  <input
-                    id="characterPersonalityInput"
-                    type="text"
-                    placeholder="Chăm chỉ, kiên trì, truyền cảm hứng..."
-                  />
-                </label>
-
-                <label class="field">
-                  <span>Phong thái giọng nói</span>
-                  <input
-                    id="characterVoiceStyleInput"
-                    type="text"
-                    placeholder="Tự tin, ấm áp, nhiệt huyết..."
-                  />
-                </label>
-              </div>
+              <div class="character-grid" id="characterPresetGrid"></div>
             </article>
 
-            <aside class="card card-gradient">
-              <div class="card-title-row">
-                <h3>Prompt nhân vật tổng</h3>
-                <span class="mini-tag">Đưa sang AI</span>
-              </div>
-              <p class="preview-copy" id="characterPromptPreview"></p>
-            </aside>
+            <div class="grid-layout two-columns">
+              <article class="card">
+                <div class="card-title-row">
+                  <h3>Tùy biến nhân vật</h3>
+                  <span class="mini-tag">Chi tiết hóa</span>
+                </div>
+
+                <div class="grid-layout two-columns">
+                  <label class="field">
+                    <span>Tên nhân vật</span>
+                    <input id="characterNameInput" type="text" placeholder="Ví dụ: Minh Anh" />
+                  </label>
+
+                  <label class="field">
+                    <span>Vai trò</span>
+                    <input id="characterRoleInput" type="text" placeholder="Ví dụ: học sinh lớp 12" />
+                  </label>
+                </div>
+
+                <label class="field">
+                  <span>Ngoại hình</span>
+                  <textarea
+                    id="characterAppearanceInput"
+                    rows="4"
+                    placeholder="Mô tả mặt, tóc, độ tuổi, thần thái, biểu cảm đặc trưng..."
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Trang phục và đạo cụ</span>
+                  <input
+                    id="characterOutfitInput"
+                    type="text"
+                    placeholder="Ví dụ: đồng phục học sinh, ba lô, sách vở..."
+                  />
+                </label>
+
+                <div class="grid-layout two-columns">
+                  <label class="field">
+                    <span>Tính cách</span>
+                    <input
+                      id="characterPersonalityInput"
+                      type="text"
+                      placeholder="Chăm chỉ, kiên trì, truyền cảm hứng..."
+                    />
+                  </label>
+
+                  <label class="field">
+                    <span>Phong thái giọng nói</span>
+                    <input
+                      id="characterVoiceStyleInput"
+                      type="text"
+                      placeholder="Tự tin, ấm áp, nhiệt huyết..."
+                    />
+                  </label>
+                </div>
+              </article>
+
+              <aside class="card card-gradient">
+                <div class="card-title-row">
+                  <h3>Prompt nhân vật tổng</h3>
+                  <span class="mini-tag">Đưa sang AI</span>
+                </div>
+                <p class="preview-copy" id="characterPromptPreview"></p>
+              </aside>
+            </div>
           </div>
         </section>
 
         <section class="step-panel" data-step="3">
-          <div class="panel-heading">
-            <div>
-              <p class="step-kicker">Bước 4</p>
-              <h2>Phân tách cảnh</h2>
-              <p class="panel-description">
-                Tách kịch bản thành nhiều cảnh có thời lượng, bối cảnh, camera và
-                nhãn cue nội dung rõ ràng.
-              </p>
+          <div class="storyboard-intro">
+            <p class="storyboard-icon">🎬</p>
+            <h2>Storyboard</h2>
+            <p id="storyboardSubtitle">Phân chia kịch bản thành từng shot tối ưu cho Veo3</p>
+          </div>
+
+          <div class="scene-generation-view" id="sceneGenerationView" hidden>
+            <div class="scene-generation-pill">
+              <span class="scene-generation-spinner" aria-hidden="true"></span>
+              <strong id="sceneGenerationStatus">Đang tạo storyboard...</strong>
+            </div>
+            <div class="scene-generation-progress">
+              <span id="sceneGenerationBar"></span>
+            </div>
+          </div>
+
+          <div class="scene-editor-content" id="sceneEditorContent">
+            <div class="storyboard-primary-action">
+              <button class="storyboard-generate-button" id="splitScenesButton" type="button">
+                ✦ Tạo phân cảnh
+              </button>
             </div>
 
-            <span class="panel-pill">Lập cảnh quay</span>
-          </div>
+            <div class="storyboard-empty-state" id="sceneEmptyState">
+              <p class="storyboard-empty-icon">🎬</p>
+              <h3>Nhấn "Tạo phân cảnh" để phân chia kịch bản thành các shot</h3>
+              <p id="sceneEmptyHint">Mỗi shot 4-8 giây, tối ưu cho Veo3</p>
+            </div>
 
-          <div class="action-row">
-            <button class="primary-button" id="splitScenesButton" type="button">
-              Tách cảnh tự động
-            </button>
-            <button class="secondary-button" id="rebalanceScenesButton" type="button">
-              Cân lại thời lượng
-            </button>
-            <button class="ghost-button" id="addSceneButton" type="button">
-              Thêm cảnh
+            <div class="storyboard-toolbar" id="sceneToolbar" hidden>
+              <button class="secondary-button" id="rebalanceScenesButton" type="button">
+                Cân lại thời lượng
+              </button>
+              <button class="ghost-button" id="addSceneButton" type="button">
+                Thêm cảnh
+              </button>
+            </div>
+
+            <div class="stats-strip" id="sceneStats" hidden></div>
+            <div class="scene-list" id="sceneList"></div>
+            <button class="storyboard-next-button" id="sceneContinueButton" type="button" hidden>
+              Tiếp theo: Tạo prompts →
             </button>
           </div>
-
-          <div class="stats-strip" id="sceneStats"></div>
-          <div class="scene-list" id="sceneList"></div>
         </section>
 
         <section class="step-panel" data-step="4">
-          <div class="panel-heading">
-            <div>
-              <p class="step-kicker">Bước 5</p>
-              <h2>Prompts</h2>
-              <p class="panel-description">
-                Sinh prompt hình ảnh, chuyển động, lời thoại và phụ đề cho từng
-                cảnh để đưa sang quy trình tạo video.
-              </p>
+          <div class="prompt-generator-intro">
+            <p class="prompt-generator-icon">✨</p>
+            <h2>Prompt Generator</h2>
+            <p id="promptGeneratorSubtitle">Tạo Image Prompt + Video Prompt cho từng shot — tối ưu cho Veo3</p>
+          </div>
+
+          <div class="prompt-generation-view" id="promptGenerationView" hidden>
+            <div class="prompt-generation-pill">
+              <span class="prompt-generation-spinner" aria-hidden="true"></span>
+              <strong id="promptGenerationStatus">Đang tạo prompts...</strong>
+            </div>
+          </div>
+
+          <div class="prompt-generation-note" id="promptGenerationNote" hidden>
+            <span class="prompt-generation-note-icon" aria-hidden="true">💡</span>
+            <p id="promptGenerationNoteText">Đang nhúng toàn bộ Character Bible vào từng shot...</p>
+          </div>
+
+          <div class="prompt-editor-content" id="promptEditorContent">
+            <div class="prompt-primary-action">
+              <button class="prompt-generate-button" id="generatePromptsButton" type="button">
+                ✦ Tạo tất cả prompts
+              </button>
             </div>
 
-            <span class="panel-pill">Gói prompt</span>
+            <div class="prompt-empty-state" id="promptEmptyState">
+              <p class="prompt-empty-icon">✨</p>
+              <h3>Nhấn "Tạo tất cả prompts" để tạo Image &amp; Video Prompt</h3>
+              <p id="promptEmptyHint">4 shot x 2 loại = 8 prompts, tối ưu cho Veo3</p>
+            </div>
+
+            <div class="prompt-toolbar" id="promptToolbar" hidden>
+              <button class="secondary-button" id="copyMasterPromptButton" type="button">
+                Sao chép prompt nhân vật
+              </button>
+            </div>
+
+            <div class="grid-layout two-columns" id="promptBriefGrid" hidden>
+              <article class="card card-accent">
+                <div class="card-title-row">
+                  <h3>Brief hình ảnh tổng</h3>
+                  <span class="mini-tag mini-tag-highlight">Khóa phong cách</span>
+                </div>
+                <p class="preview-copy" id="masterPromptPreview"></p>
+              </article>
+
+              <article class="card">
+                <div class="card-title-row">
+                  <h3>Nhắc nhở khi prompt</h3>
+                  <span class="mini-tag">Chất lượng</span>
+                </div>
+                <div class="tip-stack">
+                  <p>Giữ một nhân vật xuyên suốt để tránh thay đổi gương mặt qua các cảnh.</p>
+                  <p>Thêm bối cảnh, ánh sáng, camera và cảm xúc cho mỗi cảnh để kết quả rõ hơn.</p>
+                  <p>Khi sửa nội dung phân cảnh, nên tạo lại prompt để đồng bộ với lời thoại mới.</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="prompt-list" id="promptList"></div>
           </div>
-
-          <div class="action-row">
-            <button class="primary-button" id="generatePromptsButton" type="button">
-              Tạo prompt cho tất cả cảnh
-            </button>
-            <button class="secondary-button" id="copyMasterPromptButton" type="button">
-              Sao chép prompt nhân vật
-            </button>
-          </div>
-
-          <div class="grid-layout two-columns">
-            <article class="card card-accent">
-              <div class="card-title-row">
-                <h3>Brief hình ảnh tổng</h3>
-                <span class="mini-tag mini-tag-highlight">Khóa phong cách</span>
-              </div>
-              <p class="preview-copy" id="masterPromptPreview"></p>
-            </article>
-
-            <article class="card">
-              <div class="card-title-row">
-                <h3>Nhắc nhở khi prompt</h3>
-                <span class="mini-tag">Chất lượng</span>
-              </div>
-              <div class="tip-stack">
-                <p>Giữ một nhân vật xuyên suốt để tránh thay đổi gương mặt qua các cảnh.</p>
-                <p>Thêm bối cảnh, ánh sáng, camera và cảm xúc cho mỗi cảnh để kết quả rõ hơn.</p>
-                <p>Khi sửa nội dung phân cảnh, nên tạo lại prompt để đồng bộ với lời thoại mới.</p>
-              </div>
-            </article>
-          </div>
-
-          <div class="prompt-list" id="promptList"></div>
         </section>
 
         <section class="step-panel" data-step="5">

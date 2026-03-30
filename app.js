@@ -264,6 +264,12 @@ const defaultState = {
     personality: "",
     voiceStyle: "",
   },
+  characterAnalysis: [],
+  characterStyleGuide: {
+    tags: [],
+    positive: [],
+    negative: [],
+  },
   scenes: [],
   prompts: [],
 };
@@ -272,6 +278,28 @@ let state = loadState();
 let loginAccounts = loadAccounts();
 let authState = loadAuthState();
 let saveTimer = null;
+const scriptGenerationUi = {
+  isActive: false,
+  progress: 0,
+  status: "Đang tạo kịch bản...",
+};
+const characterGenerationUi = {
+  isActive: false,
+  progress: 0,
+  status: "Đang phân tích nhân vật...",
+};
+const sceneGenerationUi = {
+  isActive: false,
+  progress: 0,
+  status: "Đang tạo storyboard...",
+};
+const promptGenerationUi = {
+  isActive: false,
+  progress: 0,
+  status: "Đang tạo prompts...",
+  detail: "Đang nhúng toàn bộ Character Bible vào từng shot...",
+};
+let lastCharacterAnalysisSignature = "";
 
 if (authState && !loginAccounts.some((account) => account.username === authState.username)) {
   authState = null;
@@ -314,6 +342,9 @@ const elements = {
   narrationModeInput: document.getElementById("narrationModeInput"),
   platformGrid: document.getElementById("platformGrid"),
   apiKeyInput: document.getElementById("apiKeyInput"),
+  generateScriptButton: document.getElementById("generateScriptButton"),
+  refineScriptButton: document.getElementById("refineScriptButton"),
+  clearScriptButton: document.getElementById("clearScriptButton"),
   uploadScriptButton: document.getElementById("uploadScriptButton"),
   scriptUploadInput: document.getElementById("scriptUploadInput"),
   scriptUploadStatus: document.getElementById("scriptUploadStatus"),
@@ -323,6 +354,17 @@ const elements = {
   scriptTitleInput: document.getElementById("scriptTitleInput"),
   scriptContentInput: document.getElementById("scriptContentInput"),
   scriptOutline: document.getElementById("scriptOutline"),
+  scriptGenerationView: document.getElementById("scriptGenerationView"),
+  scriptGenerationStatus: document.getElementById("scriptGenerationStatus"),
+  scriptGenerationBar: document.getElementById("scriptGenerationBar"),
+  scriptEditorContent: document.getElementById("scriptEditorContent"),
+  scriptScenePackage: document.getElementById("scriptScenePackage"),
+  analyzeCharacterButton: document.getElementById("analyzeCharacterButton"),
+  characterGenerationView: document.getElementById("characterGenerationView"),
+  characterGenerationStatus: document.getElementById("characterGenerationStatus"),
+  characterGenerationBar: document.getElementById("characterGenerationBar"),
+  characterEditorContent: document.getElementById("characterEditorContent"),
+  characterBiblePreview: document.getElementById("characterBiblePreview"),
   characterPresetGrid: document.getElementById("characterPresetGrid"),
   characterNameInput: document.getElementById("characterNameInput"),
   characterRoleInput: document.getElementById("characterRoleInput"),
@@ -331,8 +373,29 @@ const elements = {
   characterPersonalityInput: document.getElementById("characterPersonalityInput"),
   characterVoiceStyleInput: document.getElementById("characterVoiceStyleInput"),
   characterPromptPreview: document.getElementById("characterPromptPreview"),
+  storyboardSubtitle: document.getElementById("storyboardSubtitle"),
+  sceneGenerationView: document.getElementById("sceneGenerationView"),
+  sceneGenerationStatus: document.getElementById("sceneGenerationStatus"),
+  sceneGenerationBar: document.getElementById("sceneGenerationBar"),
+  sceneEditorContent: document.getElementById("sceneEditorContent"),
+  sceneEmptyState: document.getElementById("sceneEmptyState"),
+  sceneEmptyHint: document.getElementById("sceneEmptyHint"),
+  sceneToolbar: document.getElementById("sceneToolbar"),
   sceneStats: document.getElementById("sceneStats"),
   sceneList: document.getElementById("sceneList"),
+  sceneContinueButton: document.getElementById("sceneContinueButton"),
+  promptGeneratorSubtitle: document.getElementById("promptGeneratorSubtitle"),
+  promptGenerationView: document.getElementById("promptGenerationView"),
+  promptGenerationStatus: document.getElementById("promptGenerationStatus"),
+  promptGenerationNote: document.getElementById("promptGenerationNote"),
+  promptGenerationNoteText: document.getElementById("promptGenerationNoteText"),
+  promptEditorContent: document.getElementById("promptEditorContent"),
+  promptEmptyState: document.getElementById("promptEmptyState"),
+  promptEmptyHint: document.getElementById("promptEmptyHint"),
+  promptToolbar: document.getElementById("promptToolbar"),
+  generatePromptsButton: document.getElementById("generatePromptsButton"),
+  copyMasterPromptButton: document.getElementById("copyMasterPromptButton"),
+  promptBriefGrid: document.getElementById("promptBriefGrid"),
   masterPromptPreview: document.getElementById("masterPromptPreview"),
   promptList: document.getElementById("promptList"),
   readinessBar: document.getElementById("readinessBar"),
@@ -347,6 +410,7 @@ wireActions();
 wireAuthActions();
 renderAll({ syncInputs: true });
 renderAuthState();
+maybeAutoGenerateCharacter();
 
 function wireStaticInputs() {
   bindTextInput(elements.apiKeyInput, ["project", "apiKey"]);
@@ -357,8 +421,8 @@ function wireStaticInputs() {
   elements.customDurationInput.addEventListener("change", handleCustomDurationInput);
   bindTextInput(elements.objectiveInput, ["project", "objective"]);
   bindSelectInput(elements.toneInput, ["project", "tone"]);
-  bindSelectInput(elements.voiceInput, ["project", "voice"]);
-  bindSelectInput(elements.visualStyleInput, ["project", "visualStyle"]);
+  bindSelectInput(elements.voiceInput, ["project", "voice"], renderCharacterPreviews);
+  bindSelectInput(elements.visualStyleInput, ["project", "visualStyle"], renderCharacterPreviews);
   bindSelectInput(elements.formatInput, ["project", "format"]);
   bindSelectInput(elements.narrationModeInput, ["project", "narrationMode"]);
   bindTextInput(elements.scriptTitleInput, ["script", "title"]);
@@ -410,6 +474,8 @@ function handleDurationPresetChange() {
   syncDurationControls();
   renderGlobalSummary();
   renderStepper();
+  renderSceneWorkspace();
+  renderPromptWorkspace();
   renderSceneStats();
   renderPublishPanel();
 }
@@ -427,6 +493,8 @@ function handleCustomDurationInput() {
   syncDurationControls();
   renderGlobalSummary();
   renderStepper();
+  renderSceneWorkspace();
+  renderPromptWorkspace();
   renderSceneStats();
   renderPublishPanel();
 }
@@ -459,6 +527,7 @@ function wireActions() {
     renderVoiceRegionCards();
     renderDialogueLanguageCards();
     renderCharacterPreviews();
+    renderPromptWorkspace();
     renderPublishPanel();
   });
 
@@ -471,6 +540,7 @@ function wireActions() {
     scheduleSave();
     renderDialogueLanguageCards();
     renderCharacterPreviews();
+    renderPromptWorkspace();
     renderPublishPanel();
   });
 
@@ -484,6 +554,8 @@ function wireActions() {
     renderGlobalSummary();
     renderStepper();
     renderPlatformCards();
+    renderSceneWorkspace();
+    renderPromptWorkspace();
     renderPublishPanel();
   });
 
@@ -498,18 +570,24 @@ function wireActions() {
   elements.scriptUploadInput?.addEventListener("change", handleScriptUpload);
   elements.referenceUploadInput?.addEventListener("change", handleReferenceUpload);
 
-  document.getElementById("generateScriptButton").addEventListener("click", generateScriptDraft);
-  document.getElementById("refineScriptButton").addEventListener("click", refineScriptForVoice);
-  document.getElementById("clearScriptButton").addEventListener("click", clearScript);
+  elements.generateScriptButton.addEventListener("click", generateScriptDraft);
+  elements.refineScriptButton.addEventListener("click", refineScriptForVoice);
+  elements.clearScriptButton.addEventListener("click", clearScript);
+  elements.analyzeCharacterButton.addEventListener("click", () => {
+    void analyzeAndCreateCharacter();
+  });
   document.getElementById("splitScenesButton").addEventListener("click", generateScenesFromScript);
   document.getElementById("rebalanceScenesButton").addEventListener("click", rebalanceScenes);
   document.getElementById("addSceneButton").addEventListener("click", addScene);
-  document.getElementById("generatePromptsButton").addEventListener("click", generatePromptPack);
-  document
-    .getElementById("copyMasterPromptButton")
-    .addEventListener("click", () =>
-      copyText(buildMasterCharacterPrompt(), "Đã sao chép prompt nhân vật.")
-    );
+  elements.sceneContinueButton.addEventListener("click", () => {
+    setStep(4);
+  });
+  elements.generatePromptsButton.addEventListener("click", () => {
+    void generatePromptPack();
+  });
+  elements.copyMasterPromptButton.addEventListener("click", () =>
+    copyText(buildMasterCharacterPrompt(), "Đã sao chép prompt nhân vật.")
+  );
   document.getElementById("exportJsonButton").addEventListener("click", exportJson);
   document.getElementById("exportMarkdownButton").addEventListener("click", exportMarkdown);
   document
@@ -564,15 +642,27 @@ function wireActions() {
         : event.target.value;
     scheduleSave();
     renderSceneStats();
+    renderScriptScenePackage();
     renderPublishPanel();
   });
 
   elements.sceneList.addEventListener("click", (event) => {
     const button = event.target.closest("[data-remove-scene]");
     if (!button) {
+      const addTile = event.target.closest("[data-add-scene-tile]");
+      if (addTile) {
+        addScene();
+      }
       return;
     }
     removeScene(button.dataset.removeScene);
+  });
+
+  elements.sceneStats.addEventListener("click", (event) => {
+    if (!event.target.closest("[data-rebalance-scenes]")) {
+      return;
+    }
+    rebalanceScenes();
   });
 
   elements.promptList.addEventListener("input", (event) => {
@@ -597,6 +687,9 @@ function bindTextInput(element, path, callback) {
     scheduleSave();
     renderGlobalSummary();
     renderStepper();
+    renderScriptScenePackage();
+    renderSceneWorkspace();
+    renderPromptWorkspace();
     renderPublishPanel();
     if (callback) {
       callback();
@@ -610,6 +703,9 @@ function bindSelectInput(element, path, callback) {
     scheduleSave();
     renderGlobalSummary();
     renderStepper();
+    renderScriptScenePackage();
+    renderSceneWorkspace();
+    renderPromptWorkspace();
     renderPublishPanel();
     if (callback) {
       callback();
@@ -628,7 +724,14 @@ function renderAll({ syncInputs = false } = {}) {
   renderDialogueLanguageCards();
   renderPlatformCards();
   renderUploadStatuses();
+  renderScriptGenerationState();
+  renderCharacterGenerationState();
+  renderSceneGenerationState();
+  renderPromptGenerationState();
+  renderSceneWorkspace();
+  renderPromptWorkspace();
   renderScriptOutline();
+  renderScriptScenePackage();
   renderCharacterPreviews();
   renderSceneStats();
   renderSceneList();
@@ -680,6 +783,10 @@ function renderPanels() {
         : "Tiếp tục";
   elements.dockStatus.textContent = `${state.currentStep + 1}/6 | ${steps[state.currentStep].description}`;
   elements.wizardDock.classList.toggle("is-first-step", state.currentStep === 0);
+  renderScriptGenerationState();
+  renderCharacterGenerationState();
+  renderSceneGenerationState();
+  renderPromptGenerationState();
 }
 
 function renderStepper() {
@@ -801,6 +908,118 @@ function renderUploadStatuses() {
     : "Chưa chọn tài liệu.";
 }
 
+function renderScriptGenerationState() {
+  const isScriptStepActive = state.currentStep === 1;
+  const shouldShowLoading = isScriptStepActive && scriptGenerationUi.isActive;
+
+  elements.scriptGenerationView.hidden = !shouldShowLoading;
+  elements.scriptEditorContent.hidden = shouldShowLoading;
+  elements.scriptGenerationStatus.textContent = scriptGenerationUi.status;
+  elements.scriptGenerationBar.style.width = `${scriptGenerationUi.progress}%`;
+  elements.generateScriptButton.disabled = scriptGenerationUi.isActive;
+  elements.refineScriptButton.disabled = scriptGenerationUi.isActive;
+  elements.clearScriptButton.disabled = scriptGenerationUi.isActive;
+}
+
+function renderCharacterGenerationState() {
+  const isCharacterStepActive = state.currentStep === 2;
+  const shouldShowLoading = isCharacterStepActive && characterGenerationUi.isActive;
+
+  elements.characterGenerationView.hidden = !shouldShowLoading;
+  elements.characterEditorContent.hidden = shouldShowLoading;
+  elements.characterGenerationStatus.textContent = characterGenerationUi.status;
+  elements.characterGenerationBar.style.width = `${characterGenerationUi.progress}%`;
+  elements.analyzeCharacterButton.textContent = state.characterAnalysis.length
+    ? "Tạo lại Character Bible"
+    : "Phân tích và tạo nhân vật";
+  elements.analyzeCharacterButton.disabled =
+    characterGenerationUi.isActive || !state.script.content.trim();
+}
+
+function renderSceneGenerationState() {
+  const isSceneStepActive = state.currentStep === 3;
+  const shouldShowLoading = isSceneStepActive && sceneGenerationUi.isActive;
+
+  elements.sceneGenerationView.hidden = !shouldShowLoading;
+  elements.sceneEditorContent.hidden = shouldShowLoading;
+  elements.sceneGenerationStatus.textContent = sceneGenerationUi.status || "Đang tạo storyboard...";
+  elements.sceneGenerationBar.style.width = `${sceneGenerationUi.progress}%`;
+  elements.splitScenesButton.disabled = sceneGenerationUi.isActive || !state.script.content.trim();
+}
+
+function legacyRenderPromptGenerationState() {
+  const isPromptStepActive = state.currentStep === 4;
+  const shouldShowLoading = isPromptStepActive && promptGenerationUi.isActive;
+
+  elements.promptGenerationView.hidden = !shouldShowLoading;
+  elements.promptGenerationNote.hidden = !shouldShowLoading;
+  elements.promptEditorContent.hidden = shouldShowLoading;
+  elements.promptGenerationStatus.textContent = promptGenerationUi.status || "Đang tạo prompts...";
+  elements.promptGenerationNoteText.textContent =
+    promptGenerationUi.detail || "Đang nhúng toàn bộ Character Bible vào từng shot...";
+  elements.generatePromptsButton.disabled = promptGenerationUi.isActive || !state.scenes.length;
+  elements.copyMasterPromptButton.disabled = !state.prompts.length;
+}
+
+function renderSceneWorkspace() {
+  const platformLabel = getPlatformLabel(state.project.videoPlatform);
+  const hasScenes = state.scenes.length > 0;
+
+  elements.storyboardSubtitle.textContent = `Phân chia kịch bản thành từng shot tối ưu cho ${platformLabel}`;
+  elements.sceneEmptyHint.textContent = `Mỗi shot ${buildSceneDurationHint()}, tối ưu cho ${platformLabel}`;
+  elements.splitScenesButton.textContent = hasScenes ? "✦ Tạo lại phân cảnh" : "✦ Tạo phân cảnh";
+  elements.sceneEmptyState.hidden = hasScenes;
+  elements.sceneToolbar.hidden = true;
+  elements.sceneStats.hidden = !hasScenes;
+  elements.sceneContinueButton.hidden = !hasScenes;
+
+  if (!hasScenes && !sceneGenerationUi.isActive) {
+    elements.sceneList.innerHTML = "";
+  }
+}
+
+function renderPromptWorkspace() {
+  const platformLabel = getPlatformLabel(state.project.videoPlatform);
+  const sceneCount = state.scenes.length;
+  const promptCount = state.prompts.length;
+  const hasPrompts = promptCount > 0;
+
+  elements.promptGeneratorSubtitle.textContent = `Tạo Image Prompt + Video Prompt cho từng shot — tối ưu cho ${platformLabel}`;
+  elements.generatePromptsButton.textContent = hasPrompts
+    ? "✦ Tạo lại prompts"
+    : "✦ Tạo tất cả prompts";
+  elements.promptEmptyHint.textContent = sceneCount
+    ? `${sceneCount} shot x 2 loại = ${sceneCount * 2} prompts, tối ưu cho ${platformLabel}`
+    : `Tạo phân cảnh trước để sinh prompt tối ưu cho ${platformLabel}.`;
+  elements.promptEmptyState.hidden = hasPrompts;
+  elements.promptToolbar.hidden = !hasPrompts;
+  elements.promptBriefGrid.hidden = !hasPrompts;
+
+  if (!hasPrompts && !promptGenerationUi.isActive) {
+    elements.promptList.innerHTML = "";
+  }
+}
+
+function buildPromptGenerationDefaultDetail() {
+  const sceneCount = Math.max(state.scenes.length, 1);
+  return `💡 Đang nhúng toàn bộ Character Bible vào ${sceneCount} shot... (${sceneCount * 2} prompts)`;
+}
+
+function renderPromptGenerationState() {
+  const isPromptStepActive = state.currentStep === 4;
+  const shouldShowLoading = isPromptStepActive && promptGenerationUi.isActive;
+
+  elements.promptGenerationView.hidden = !shouldShowLoading;
+  elements.promptGenerationNote.hidden = !shouldShowLoading;
+  elements.promptEditorContent.hidden = shouldShowLoading;
+  elements.promptGenerationStatus.textContent =
+    promptGenerationUi.status || `Đang tạo ${Math.max(state.scenes.length, 1)} cặp prompt...`;
+  elements.promptGenerationNoteText.textContent =
+    promptGenerationUi.detail || buildPromptGenerationDefaultDetail();
+  elements.generatePromptsButton.disabled = promptGenerationUi.isActive || !state.scenes.length;
+  elements.copyMasterPromptButton.disabled = !state.prompts.length;
+}
+
 function renderScriptOutline() {
   const paragraphs = splitParagraphs(state.script.content);
   if (!paragraphs.length) {
@@ -823,6 +1042,66 @@ function renderScriptOutline() {
       `;
     })
     .join("");
+}
+
+function renderScriptScenePackage() {
+  if (!state.script.content.trim()) {
+    elements.scriptScenePackage.innerHTML = "";
+    return;
+  }
+
+  const profile = getCharacterProfile();
+  const leadSummary =
+    state.project.objective.trim() ||
+    "Sau khi xem video, học viên sẽ nắm được ý chính và áp dụng được vào tình huống thực tế.";
+
+  const sceneCards = state.scenes.length
+    ? state.scenes
+        .map((scene, index) => {
+          return `
+            <article class="scene-preview-card">
+              <div class="scene-preview-head">
+                <div class="scene-preview-badges">
+                  <span class="scene-preview-chip scene-preview-chip-scene">Cảnh ${index + 1}</span>
+                  <span class="scene-preview-chip scene-preview-chip-duration">${scene.duration}s</span>
+                </div>
+                <p class="scene-preview-cast">👥 ${escapeHtml(scene.cast || profile.name)}</p>
+              </div>
+              <p class="scene-preview-setting">📍 ${escapeHtml(scene.setting || scene.visual)}</p>
+              <p class="scene-preview-narration">${escapeHtml(scene.narration)}</p>
+              <p class="scene-preview-director">🎬 ${escapeHtml(scene.directorCue || scene.camera)}</p>
+              <p class="scene-preview-dialogue">💬 ${escapeHtml(scene.dialogue || buildSceneDialogueLine(scene, index))}</p>
+            </article>
+          `;
+        })
+        .join("")
+    : `
+      <div class="empty-state">
+        Kịch bản đã có nội dung nhưng chưa có phân cảnh. Hãy bấm "Tạo kịch bản mẫu" để hệ thống sinh sẵn các cảnh như gói video.
+      </div>
+    `;
+
+  elements.scriptScenePackage.innerHTML = `
+    <article class="script-package-summary">
+      <h3>${escapeHtml(state.script.title || "Kịch bản video giáo dục")}</h3>
+      <p class="script-package-lead">🎯 ${escapeHtml(leadSummary)}</p>
+      <div class="script-package-meta">
+        <span>⏱️ Tổng thời lượng: <strong>${formatDurationLabel(state.project.duration)}</strong></span>
+        <span>🎞️ ${state.scenes.length || getDurationSceneCount(state.project.duration)} cảnh</span>
+        <span>🎨 ${escapeHtml(state.project.visualStyle)}</span>
+        <span>🗣️ ${escapeHtml(state.project.tone)}</span>
+      </div>
+    </article>
+
+    <div class="script-package-heading">
+      <h4>Danh sách cảnh</h4>
+      <p>Hover để chỉnh sửa nhanh, sang bước Phân cảnh để tinh chỉnh chi tiết.</p>
+    </div>
+
+    <div class="script-scene-preview-list">
+      ${sceneCards}
+    </div>
+  `;
 }
 
 function renderCharacterPreviews() {
@@ -851,114 +1130,356 @@ function renderCharacterPreviews() {
     `Cảm xúc và phong thái: ${profile.personality}, chất giọng ${profile.voiceStyle}.`,
     `Giữ cùng một gương mặt, trang phục và tỷ lệ cơ thể xuyên suốt mọi cảnh.`,
   ].join(" ");
+  renderCharacterBiblePreview(profile);
 }
 
-function renderSceneStats() {
-  const targetDuration = getDurationSeconds(state.project.duration);
-  const currentDuration = state.scenes.reduce((sum, scene) => sum + Number(scene.duration || 0), 0);
-  const statusText =
-    state.scenes.length === 0
-      ? "Chưa có cảnh"
-      : currentDuration === targetDuration
-        ? "Đã khớp thời lượng"
-        : currentDuration > targetDuration
-          ? "Vượt thời lượng"
-          : "Còn thiếu thời lượng";
-
-  elements.sceneStats.innerHTML = `
-    <article class="stat-pill">
-      <span>Cảnh hiện tại</span>
-      <strong>${state.scenes.length}</strong>
-    </article>
-    <article class="stat-pill">
-      <span>Thời lượng mục tiêu</span>
-      <strong>${formatDurationLabel(state.project.duration)}</strong>
-    </article>
-    <article class="stat-pill">
-      <span>Cộng dồn cảnh</span>
-      <strong>${currentDuration}s</strong>
-    </article>
-    <article class="stat-pill">
-      <span>Trạng thái</span>
-      <strong>${statusText}</strong>
-    </article>
-  `;
-}
-
-function renderSceneList() {
-  if (!state.scenes.length) {
-    elements.sceneList.innerHTML = `
+function renderCharacterBiblePreview(profile = getCharacterProfile()) {
+  if (!state.script.content.trim()) {
+    elements.characterBiblePreview.innerHTML = `
       <div class="empty-state">
-        Chưa có phân cảnh. Hãy tạo kịch bản trước, sau đó bấm "Tách cảnh tự động".
+        Hãy tạo kịch bản trước để hệ thống phân tích vai chính và dựng hồ sơ nhân vật phù hợp.
       </div>
     `;
     return;
   }
 
-  elements.sceneList.innerHTML = state.scenes
+  if (!state.characterAnalysis.length) {
+    const consistencyNote = buildCharacterConsistencyNote(profile);
+    elements.characterBiblePreview.innerHTML = `
+      <article class="character-bible-card">
+        <div class="character-bible-head">
+          <div>
+            <p class="character-bible-kicker">Character Bible</p>
+            <h3>${escapeHtml(profile.name)}</h3>
+            <p>${escapeHtml(profile.role)}</p>
+          </div>
+          <div class="character-bible-badges">
+            <span class="character-bible-badge">${escapeHtml(state.project.audience)}</span>
+            <span class="character-bible-badge">${escapeHtml(state.project.voice)}</span>
+            <span class="character-bible-badge">${escapeHtml(getDialogueLanguageLabel(state.project.dialogueLanguage))}</span>
+            <span class="character-bible-badge">${escapeHtml(state.project.tone)}</span>
+          </div>
+        </div>
+        <div class="character-bible-grid">
+          <article class="character-bible-item">
+            <h4>Vai trò trong video</h4>
+            <p>${escapeHtml(buildCharacterStoryRole(profile))}</p>
+          </article>
+          <article class="character-bible-item">
+            <h4>Ngoại hình khóa</h4>
+            <p>${escapeHtml(profile.appearance)}</p>
+          </article>
+          <article class="character-bible-item">
+            <h4>Trang phục và đạo cụ</h4>
+            <p>${escapeHtml(profile.outfit)}</p>
+          </article>
+          <article class="character-bible-item">
+            <h4>Tính cách và giọng nói</h4>
+            <p>${escapeHtml(`${profile.personality}. ${profile.voiceStyle}.`)}</p>
+          </article>
+          <article class="character-bible-item">
+            <h4>Điểm đồng nhất xuyên cảnh</h4>
+            <p>${escapeHtml(consistencyNote)}</p>
+          </article>
+          <article class="character-bible-item">
+            <h4>Mục tiêu nhân vật truyền tải</h4>
+            <p>${escapeHtml(buildCharacterIntentLine())}</p>
+          </article>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  const analysisList = state.characterAnalysis.map((item) => {
+    if (!item.isPrimary) {
+      return item;
+    }
+
+    return {
+      ...item,
+      name: profile.name,
+      role: profile.role,
+      appearance: profile.appearance,
+      outfit: profile.outfit,
+      personality: profile.personality,
+      voiceStyle: profile.voiceStyle,
+    };
+  });
+
+  const analysisCards = analysisList
+    .map((item, index) => {
+      const sceneText = item.scenes.length ? item.scenes.join(", ") : "Chưa gắn cảnh cụ thể";
+      return `
+        <article class="character-analysis-card ${item.isPrimary ? "is-primary" : ""}">
+          <div class="character-analysis-head">
+            <div>
+              <h3>${escapeHtml(item.name)}</h3>
+              <p>${escapeHtml(item.role)}</p>
+            </div>
+            <div class="character-analysis-badges">
+              ${item.isPrimary ? '<span class="character-analysis-badge is-primary">Vai chính</span>' : ""}
+              <span class="character-analysis-badge">#${index + 1}</span>
+            </div>
+          </div>
+          <div class="character-analysis-rows">
+            <p><span>👤</span><strong>Vai trò:</strong> ${escapeHtml(item.role)}</p>
+            <p><span>🎨</span><strong>Ngoại hình:</strong> ${escapeHtml(item.appearance)}</p>
+            <p><span>🧥</span><strong>Trang phục:</strong> ${escapeHtml(item.outfit)}</p>
+            <p><span>🧠</span><strong>Tính cách:</strong> ${escapeHtml(item.personality)}</p>
+            <p><span>🎙️</span><strong>Giọng nói:</strong> ${escapeHtml(item.voiceStyle)}</p>
+            <p><span>🎯</span><strong>Nhiệm vụ trong video:</strong> ${escapeHtml(item.scenePurpose)}</p>
+            <p><span>🎬</span><strong>Xuất hiện ở:</strong> ${escapeHtml(sceneText)}</p>
+          </div>
+          <div class="character-analysis-lock">
+            <strong>Prompt khóa nhân vật:</strong>
+            <p>${escapeHtml(item.promptLock)}</p>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  const styleGuideTags = state.characterStyleGuide.tags
+    .map((tag) => `<span class="style-guide-chip">${escapeHtml(tag)}</span>`)
+    .join("");
+  const positiveList = state.characterStyleGuide.positive
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+  const negativeList = state.characterStyleGuide.negative
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+
+  elements.characterBiblePreview.innerHTML = `
+    <div class="character-analysis-toolbar">
+      <div>
+        <p class="character-analysis-kicker">NHÂN VẬT AI</p>
+        <strong>${analysisList.length} nhân vật đã được khóa đồng nhất</strong>
+      </div>
+      <span class="character-analysis-summary">${escapeHtml(state.project.visualStyle)} · ${escapeHtml(state.project.voice)}</span>
+    </div>
+
+    <div class="character-analysis-list">
+      ${analysisCards}
+    </div>
+
+    <article class="character-style-guide">
+      <div class="character-style-guide-head">
+        <div>
+          <p class="character-bible-kicker">STYLE GUIDE</p>
+          <h3>Quy tắc giữ nhân vật nhất quán</h3>
+        </div>
+        <div class="style-guide-chip-list">${styleGuideTags}</div>
+      </div>
+      <div class="style-guide-grid">
+        <article class="style-guide-note is-positive">
+          <h4>Nên làm</h4>
+          <ul>${positiveList}</ul>
+        </article>
+        <article class="style-guide-note is-negative">
+          <h4>Tránh làm</h4>
+          <ul>${negativeList}</ul>
+        </article>
+      </div>
+    </article>
+  `;
+}
+
+function renderSceneStats() {
+  const currentDuration = state.scenes.reduce((sum, scene) => sum + Number(scene.duration || 0), 0);
+
+  elements.sceneStats.innerHTML = `
+    <div class="storyboard-metrics-bar">
+      <span class="storyboard-metric-chip">📋 Tổng shot: <strong>${state.scenes.length}</strong></span>
+      <span class="storyboard-metric-chip">⏱ Tổng thời lượng: <strong>${currentDuration}s</strong></span>
+      <span class="storyboard-metric-chip">🎬 Nền tảng: <strong>${escapeHtml(getPlatformLabel(state.project.videoPlatform))}</strong></span>
+      <button class="storyboard-metric-action" type="button" data-rebalance-scenes>
+        ⚖ Cân lại thời lượng
+      </button>
+    </div>
+  `;
+}
+
+function renderSceneList() {
+  if (!state.scenes.length) {
+    elements.sceneList.innerHTML = "";
+    return;
+  }
+
+  const sceneCards = state.scenes
     .map((scene, index) => {
       return `
-        <article class="scene-card">
-          <div class="scene-card-head">
-            <div>
-              <p>Cảnh ${index + 1}</p>
-              <h3>${escapeHtml(scene.title || `Cảnh ${index + 1}`)}</h3>
+        <article class="story-scene-card">
+          <div class="story-scene-head">
+            <div class="story-scene-badges">
+              <span class="story-scene-badge story-scene-badge-shot">Shot ${index + 1}</span>
+              <span class="story-scene-badge story-scene-badge-duration">${Number(scene.duration || 0)}s</span>
             </div>
-            <button class="remove-button" type="button" data-remove-scene="${scene.id}">
-              Xóa
+            <button class="story-scene-remove" type="button" data-remove-scene="${scene.id}" aria-label="Xóa shot">
+              ×
             </button>
           </div>
 
+          <h3>${escapeHtml(scene.title || `Cảnh ${index + 1}`)}</h3>
+          <p class="story-scene-summary">${escapeHtml(scene.narration || "Chưa có mô tả cho shot này.")}</p>
+
+          <div class="story-scene-points">
+            <p class="story-scene-point"><span>📍</span>${escapeHtml(scene.setting || "Bối cảnh đang cập nhật.")}</p>
+            <p class="story-scene-point"><span>🎥</span>${escapeHtml(`${scene.camera} • ${scene.transition}`)}</p>
+            <p class="story-scene-point"><span>🎨</span>${escapeHtml(scene.visual || "Chưa có mô tả hình ảnh.")}</p>
+            <p class="story-scene-point story-scene-point-highlight"><span>💬</span>${escapeHtml(scene.dialogue || "Chưa có thoại mẫu.")}</p>
+            <p class="story-scene-point story-scene-point-cast"><span>👥</span>${escapeHtml(scene.cast || "Chưa gắn nhân vật.")}</p>
+          </div>
+
+          <details class="scene-editor-drawer">
+            <summary>Chỉnh shot</summary>
+            <div class="scene-editor-drawer-body">
+              <label class="field">
+                <span>Tiêu đề shot</span>
+                <input data-scene-input="title" data-scene-id="${scene.id}" value="${escapeAttribute(
+                  scene.title
+                )}" />
+              </label>
+
+              <label class="field">
+                <span>Nội dung shot</span>
+                <textarea data-scene-input="narration" data-scene-id="${scene.id}" rows="4">${escapeHtml(
+                  scene.narration
+                )}</textarea>
+              </label>
+
+              <label class="field">
+                <span>Trọng tâm thị giác</span>
+                <input data-scene-input="visual" data-scene-id="${scene.id}" value="${escapeAttribute(
+                  scene.visual
+                )}" />
+              </label>
+
+              <label class="field">
+                <span>Bối cảnh</span>
+                <textarea data-scene-input="setting" data-scene-id="${scene.id}" rows="3">${escapeHtml(
+                  scene.setting
+                )}</textarea>
+              </label>
+
+              <label class="field">
+                <span>Nhân vật</span>
+                <input data-scene-input="cast" data-scene-id="${scene.id}" value="${escapeAttribute(
+                  scene.cast
+                )}" />
+              </label>
+
+              <label class="field">
+                <span>Thoại mẫu</span>
+                <textarea data-scene-input="dialogue" data-scene-id="${scene.id}" rows="3">${escapeHtml(
+                  scene.dialogue
+                )}</textarea>
+              </label>
+
+              <div class="grid-layout three-columns">
+                <label class="field">
+                  <span>Camera</span>
+                  <input data-scene-input="camera" data-scene-id="${scene.id}" value="${escapeAttribute(
+                    scene.camera
+                  )}" />
+                </label>
+
+                <label class="field">
+                  <span>Chuyển cảnh</span>
+                  <input data-scene-input="transition" data-scene-id="${scene.id}" value="${escapeAttribute(
+                    scene.transition
+                  )}" />
+                </label>
+
+                <label class="field">
+                  <span>Thời lượng (s)</span>
+                  <input
+                    data-scene-input="duration"
+                    data-scene-id="${scene.id}"
+                    type="number"
+                    min="1"
+                    max="${maxDurationSeconds}"
+                    value="${Number(scene.duration || 0)}"
+                  />
+                </label>
+              </div>
+            </div>
+          </details>
+        </article>
+      `;
+    })
+    .join("");
+
+  elements.sceneList.innerHTML = `
+    <div class="story-scene-grid">
+      ${sceneCards}
+      <button class="storyboard-add-tile" type="button" data-add-scene-tile="true">
+        <span class="storyboard-add-symbol">+</span>
+        <span>Thêm shot</span>
+      </button>
+    </div>
+  `;
+}
+
+function legacyRenderPromptList() {
+  if (!state.prompts.length) {
+    elements.promptList.innerHTML = `
+      <div class="empty-state">
+        Chưa có prompt. Sau khi đã có phân cảnh, hãy bấm "Tạo prompt cho tất cả cảnh".
+      </div>
+    `;
+    return;
+  }
+
+  elements.promptList.innerHTML = state.prompts
+    .map((prompt, index) => {
+      const scene = state.scenes.find((item) => item.id === prompt.sceneId);
+      const sceneTitle = scene ? scene.title : `Cảnh ${index + 1}`;
+      return `
+        <article class="prompt-card">
+          <div class="prompt-card-head">
+            <div>
+              <p>Gói prompt ${index + 1}</p>
+              <h3>${escapeHtml(sceneTitle)}</h3>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Prompt ảnh / video</span>
+            <textarea data-prompt-input="image" data-scene-id="${prompt.sceneId}" rows="4">${escapeHtml(
+              prompt.image
+            )}</textarea>
+          </label>
+
+          <label class="field">
+            <span>Prompt chuyển động</span>
+            <textarea data-prompt-input="motion" data-scene-id="${prompt.sceneId}" rows="3">${escapeHtml(
+              prompt.motion
+            )}</textarea>
+          </label>
+
           <div class="grid-layout two-columns">
             <label class="field">
-              <span>Tiêu đề cảnh</span>
-              <input data-scene-input="title" data-scene-id="${scene.id}" value="${escapeAttribute(
-                scene.title
-              )}" />
+              <span>Prompt lời thoại</span>
+              <textarea data-prompt-input="voice" data-scene-id="${prompt.sceneId}" rows="4">${escapeHtml(
+                prompt.voice
+              )}</textarea>
             </label>
 
             <label class="field">
-              <span>Trọng tâm thị giác</span>
-              <input data-scene-input="visual" data-scene-id="${scene.id}" value="${escapeAttribute(
-                scene.visual
-              )}" />
+              <span>Gợi ý phụ đề</span>
+              <textarea data-prompt-input="subtitle" data-scene-id="${prompt.sceneId}" rows="4">${escapeHtml(
+                prompt.subtitle
+              )}</textarea>
             </label>
           </div>
 
           <label class="field">
-            <span>Lời thoại / nội dung cảnh</span>
-            <textarea data-scene-input="narration" data-scene-id="${scene.id}" rows="4">${escapeHtml(
-              scene.narration
+            <span>Prompt loại trừ</span>
+            <textarea data-prompt-input="negative" data-scene-id="${prompt.sceneId}" rows="3">${escapeHtml(
+              prompt.negative
             )}</textarea>
           </label>
-
-          <div class="grid-layout three-columns">
-            <label class="field">
-              <span>Camera</span>
-              <input data-scene-input="camera" data-scene-id="${scene.id}" value="${escapeAttribute(
-                scene.camera
-              )}" />
-            </label>
-
-            <label class="field">
-              <span>Chuyển cảnh</span>
-              <input data-scene-input="transition" data-scene-id="${scene.id}" value="${escapeAttribute(
-                scene.transition
-              )}" />
-            </label>
-
-            <label class="field">
-              <span>Thời lượng (s)</span>
-              <input
-                data-scene-input="duration"
-                data-scene-id="${scene.id}"
-                type="number"
-                min="1"
-                max="${maxDurationSeconds}"
-                value="${Number(scene.duration || 0)}"
-              />
-            </label>
-          </div>
         </article>
       `;
     })
@@ -967,11 +1488,7 @@ function renderSceneList() {
 
 function renderPromptList() {
   if (!state.prompts.length) {
-    elements.promptList.innerHTML = `
-      <div class="empty-state">
-        Chưa có prompt. Sau khi đã có phân cảnh, hãy bấm "Tạo prompt cho tất cả cảnh".
-      </div>
-    `;
+    elements.promptList.innerHTML = "";
     return;
   }
 
@@ -1049,7 +1566,7 @@ function renderPublishPanel() {
     },
     {
       title: "Nhân vật",
-      ready: Boolean(getCharacterProfile().name && getCharacterProfile().appearance),
+      ready: hasLockedCharacterProfile(),
       description: "Đã khóa hồ sơ nhân vật và phong thái.",
     },
     {
@@ -1097,6 +1614,9 @@ async function handleScriptUpload(event) {
       if (importedText) {
         state.script.title = stripFileExtension(file.name);
         state.script.content = importedText;
+        state.characterAnalysis = [];
+        state.characterStyleGuide = cloneState(defaultState.characterStyleGuide);
+        lastCharacterAnalysisSignature = "";
         state.scenes = [];
         state.prompts = [];
         if (!state.project.topic.trim()) {
@@ -1129,13 +1649,25 @@ function handleReferenceUpload(event) {
   event.target.value = "";
 }
 
-function generateScriptDraft() {
+async function generateScriptDraft() {
+  if (scriptGenerationUi.isActive) {
+    return;
+  }
+
   if (!state.project.topic.trim()) {
     showToast("Hãy nhập chủ đề trước khi tạo kịch bản.");
     setStep(0);
     elements.topicInput.focus();
     return;
   }
+
+  setStep(1);
+  setScriptGenerationUiState(true, "Đang phân tích chủ đề...", 14);
+  await wait(320);
+  setScriptGenerationUiState(true, "Đang xây dựng khung nội dung...", 36);
+  await wait(420);
+  setScriptGenerationUiState(true, "Đang viết lời dẫn theo nhịp video...", 64);
+  await wait(520);
 
   const beatCount = getDurationSceneCount(state.project.duration);
   const topic = cleanupSentence(state.project.topic);
@@ -1156,12 +1688,730 @@ function generateScriptDraft() {
   const selectedBeats = beatBank.slice(0, Math.max(4, Math.min(beatCount, beatBank.length)));
   state.script.title = buildSuggestedTitle(topic);
   state.script.content = selectedBeats.join("\n\n");
-  state.scenes = [];
+  state.characterAnalysis = [];
+  state.characterStyleGuide = cloneState(defaultState.characterStyleGuide);
+  lastCharacterAnalysisSignature = "";
+  state.scenes = createSceneDraftsFromScriptContent(state.script.content);
   state.prompts = [];
   scheduleSave();
+  setScriptGenerationUiState(true, "Đang hoàn thiện kịch bản...", 88);
   renderAll({ syncInputs: true });
-  setStep(1);
+  await wait(280);
+  setScriptGenerationUiState(true, "Kịch bản đã sẵn sàng.", 100);
+  renderScriptGenerationState();
+  await wait(220);
+  setScriptGenerationUiState(false, "Đang tạo kịch bản...", 0);
+  renderAll({ syncInputs: true });
   showToast("Đã tạo kịch bản mẫu từ brief hiện tại.");
+}
+
+function setScriptGenerationUiState(isActive, status, progress) {
+  scriptGenerationUi.isActive = isActive;
+  scriptGenerationUi.status = status;
+  scriptGenerationUi.progress = progress;
+  renderScriptGenerationState();
+}
+
+function setCharacterGenerationUiState(isActive, status, progress) {
+  characterGenerationUi.isActive = isActive;
+  characterGenerationUi.status = status;
+  characterGenerationUi.progress = progress;
+  renderCharacterGenerationState();
+}
+
+function setSceneGenerationUiState(isActive, status, progress) {
+  sceneGenerationUi.isActive = isActive;
+  sceneGenerationUi.status = status;
+  sceneGenerationUi.progress = progress;
+  renderSceneGenerationState();
+}
+
+function setPromptGenerationUiState(isActive, status, progress, detail) {
+  promptGenerationUi.isActive = isActive;
+  promptGenerationUi.status = status;
+  promptGenerationUi.progress = progress;
+  if (typeof detail === "string") {
+    promptGenerationUi.detail = detail;
+  }
+  renderPromptGenerationState();
+}
+
+async function analyzeAndCreateCharacter() {
+  if (characterGenerationUi.isActive) {
+    return;
+  }
+
+  if (!state.script.content.trim()) {
+    showToast("Hãy tạo kịch bản trước khi phân tích nhân vật.");
+    setStep(1);
+    return;
+  }
+
+  const previousProfile = getCharacterProfile();
+  const hadPrompts = state.prompts.length > 0;
+
+  setCharacterGenerationUiState(true, "Đang đọc kịch bản và xác định vai chính...", 14);
+  setStep(2);
+  await wait(280);
+  setCharacterGenerationUiState(true, "Đang phân tích độ tuổi, vai trò và cảm xúc...", 36);
+  await wait(360);
+  setCharacterGenerationUiState(true, "Đang khóa ngoại hình, trang phục và đạo cụ...", 68);
+  await wait(420);
+
+  const generatedProfile = buildGeneratedCharacterProfile();
+  const characterAnalysis = buildCharacterAnalysis(generatedProfile);
+  state.character = {
+    ...state.character,
+    ...generatedProfile,
+  };
+  state.characterAnalysis = characterAnalysis;
+  state.characterStyleGuide = buildCharacterStyleGuide(characterAnalysis);
+
+  if (state.scenes.length) {
+    syncScenesWithCharacterProfile(previousProfile, generatedProfile);
+    syncScenesWithCharacterAnalysis(characterAnalysis);
+  }
+
+  if (hadPrompts) {
+    state.prompts = [];
+  }
+
+  lastCharacterAnalysisSignature = getCharacterAnalysisSignature();
+  scheduleSave();
+  renderAll({ syncInputs: true });
+
+  await wait(220);
+  setCharacterGenerationUiState(true, "Đang hoàn thiện Character Bible...", 92);
+  await wait(220);
+  setCharacterGenerationUiState(true, "Character Bible đã sẵn sàng.", 100);
+  renderCharacterGenerationState();
+  await wait(220);
+  setCharacterGenerationUiState(false, "Đang phân tích nhân vật...", 0);
+  renderAll({ syncInputs: true });
+  showToast(
+    hadPrompts
+      ? "Đã tạo hồ sơ nhân vật. Hãy tạo lại prompt để đồng bộ nhân vật mới."
+      : "Đã phân tích và tạo hồ sơ nhân vật từ kịch bản."
+  );
+}
+
+function maybeAutoGenerateCharacter() {
+  if (!shouldAutoGenerateCharacter()) {
+    return;
+  }
+
+  void analyzeAndCreateCharacter();
+}
+
+function shouldAutoGenerateCharacter() {
+  return (
+    state.currentStep === 2 &&
+    !characterGenerationUi.isActive &&
+    Boolean(state.script.content.trim()) &&
+    state.character.presetId === defaultState.character.presetId &&
+    !hasCustomCharacterDetails() &&
+    lastCharacterAnalysisSignature !== getCharacterAnalysisSignature()
+  );
+}
+
+function hasCustomCharacterDetails() {
+  return [
+    state.character.name,
+    state.character.role,
+    state.character.appearance,
+    state.character.outfit,
+    state.character.personality,
+    state.character.voiceStyle,
+  ].some((value) => String(value || "").trim());
+}
+
+function getCharacterAnalysisSignature() {
+  return [
+    state.project.topic,
+    state.project.objective,
+    state.project.audience,
+    state.project.tone,
+    state.project.voice,
+    state.project.visualStyle,
+    state.project.narrationMode,
+    state.script.title,
+    state.script.content,
+  ].join("|");
+}
+
+function buildGeneratedCharacterProfile() {
+  const presetId = inferCharacterPresetIdFromCurrentProject();
+  const preset = characterPresets.find((item) => item.id === presetId) || characterPresets[0];
+
+  return {
+    presetId,
+    name: inferCharacterName(presetId),
+    role: buildGeneratedCharacterRole(presetId),
+    appearance: buildGeneratedCharacterAppearance(preset),
+    outfit: buildGeneratedCharacterOutfit(preset),
+    personality: buildGeneratedCharacterPersonality(preset),
+    voiceStyle: buildGeneratedCharacterVoiceStyle(preset),
+  };
+}
+
+function buildCharacterAnalysis(primaryProfile) {
+  const roster = buildCharacterRoster(primaryProfile);
+
+  return roster.map((member, index) => {
+    const scenes = inferCharacterSceneAppearances(member.name, member.roleType);
+
+    return normalizeCharacterAnalysisEntry({
+      id: createId("character"),
+      name: member.name,
+      roleType: member.roleType,
+      role: member.role,
+      appearance: member.appearance,
+      outfit: member.outfit,
+      personality: member.personality,
+      voiceStyle: member.voiceStyle,
+      scenePurpose: member.scenePurpose,
+      promptLock: buildCharacterPromptLock(member),
+      scenes,
+      isPrimary: index === 0,
+    });
+  });
+}
+
+function buildCharacterStyleGuide(characterAnalysis) {
+  const rosterNames = characterAnalysis.map((item) => item.name).slice(0, 4);
+
+  return normalizeCharacterStyleGuide({
+    tags: [
+      state.project.visualStyle,
+      state.project.voice,
+      getDialogueLanguageLabel(state.project.dialogueLanguage),
+      state.project.tone,
+      `${characterAnalysis.length} nhân vật`,
+    ],
+    positive: [
+      `Giữ đúng khuôn mặt, kiểu tóc, màu trang phục và vóc dáng của ${rosterNames.join(", ")} ở mọi cảnh.`,
+      "Nếu cùng xuất hiện trong một khung hình, hãy giữ ổn định chiều cao tương quan và vị trí đứng của từng nhân vật.",
+      "Khi tạo prompt hình ảnh, luôn nhắc lại đạo cụ khóa, màu chủ đạo và phong thái biểu cảm để AI không drift.",
+      `Giữ nhịp thoại đúng ${state.project.voice.toLowerCase()} và tông ${state.project.tone.toLowerCase()} trong toàn bộ video.`,
+    ],
+    negative: [
+      "Không đổi màu tóc, độ tuổi nhìn thấy hoặc loại trang phục giữa các cảnh liên tiếp.",
+      "Không để cùng một nhân vật có hai khuôn mặt khác nhau chỉ vì đổi góc máy hoặc đổi shot.",
+      "Không thêm nhân vật phụ ngẫu nhiên nếu kịch bản không yêu cầu.",
+      "Không làm thoại lệch ngôn ngữ đã chọn hoặc quá khác tính cách đã khóa trong Character Bible.",
+    ],
+  });
+}
+
+function buildCharacterRoster(primaryProfile) {
+  const detectedNames = extractCharacterNamesFromScenes();
+  const teacherName = inferTeacherName();
+  const leadName = sanitizeCharacterDisplayName(primaryProfile.name) || inferCharacterName(primaryProfile.presetId);
+  const friendNames = pickSupportingStudentNames(detectedNames, leadName);
+  const presetId = primaryProfile.presetId || state.character.presetId;
+  const roster = [];
+
+  if (presetId === "teacher") {
+    roster.push(
+      createCharacterRosterEntry({
+        name: leadName,
+        roleType: "teacher",
+        role: primaryProfile.role,
+        appearance: primaryProfile.appearance,
+        outfit: primaryProfile.outfit,
+        personality: primaryProfile.personality,
+        voiceStyle: primaryProfile.voiceStyle,
+        scenePurpose: "Giải thích ý chính, dẫn dắt tiến trình bài học và chốt thông điệp cuối video.",
+      })
+    );
+    friendNames.slice(0, 3).forEach((name, index) => {
+      roster.push(buildStudentRosterEntry(name, index === 0 ? "student_lead" : "student_support"));
+    });
+    return roster.slice(0, 4);
+  }
+
+  if (presetId === "mentor") {
+    roster.push(
+      createCharacterRosterEntry({
+        name: leadName,
+        roleType: "mentor",
+        role: primaryProfile.role,
+        appearance: primaryProfile.appearance,
+        outfit: primaryProfile.outfit,
+        personality: primaryProfile.personality,
+        voiceStyle: primaryProfile.voiceStyle,
+        scenePurpose: "Đồng hành, giải thích và kéo cảm xúc người xem về đúng thông điệp cốt lõi.",
+      })
+    );
+    roster.push(buildStudentRosterEntry(friendNames[0], "student_lead"));
+    roster.push(buildStudentRosterEntry(friendNames[1], "student_support"));
+    return roster.slice(0, 3);
+  }
+
+  if (presetId === "mc") {
+    roster.push(
+      createCharacterRosterEntry({
+        name: leadName,
+        roleType: "mc",
+        role: primaryProfile.role,
+        appearance: primaryProfile.appearance,
+        outfit: primaryProfile.outfit,
+        personality: primaryProfile.personality,
+        voiceStyle: primaryProfile.voiceStyle,
+        scenePurpose: "Giữ nhịp video nhanh, đặt câu hỏi dẫn và chuyển cảnh mượt giữa các phần.",
+      })
+    );
+    roster.push(buildStudentRosterEntry(friendNames[0], "student_lead"));
+    roster.push(buildTeacherRosterEntry(teacherName));
+    return roster.slice(0, 3);
+  }
+
+  roster.push(
+    createCharacterRosterEntry({
+      name: leadName,
+      roleType: "student_lead",
+      role: primaryProfile.role,
+      appearance: primaryProfile.appearance,
+      outfit: primaryProfile.outfit,
+      personality: primaryProfile.personality,
+      voiceStyle: primaryProfile.voiceStyle,
+      scenePurpose: "Là nhân vật trung tâm trải nghiệm bài học, đặt câu hỏi và giúp người xem đồng cảm với hành trình hiểu bài.",
+    })
+  );
+  roster.push(buildStudentRosterEntry(friendNames[0], "student_support"));
+  roster.push(buildStudentRosterEntry(friendNames[1], "student_observer"));
+  roster.push(buildTeacherRosterEntry(teacherName));
+  return roster.slice(0, 4);
+}
+
+function createCharacterRosterEntry(entry) {
+  return {
+    name: sanitizeCharacterDisplayName(entry.name),
+    roleType: entry.roleType,
+    role: cleanupSentence(entry.role),
+    appearance: cleanupSentence(entry.appearance),
+    outfit: cleanupSentence(entry.outfit),
+    personality: cleanupSentence(entry.personality),
+    voiceStyle: cleanupSentence(entry.voiceStyle),
+    scenePurpose: cleanupSentence(entry.scenePurpose),
+  };
+}
+
+function buildStudentRosterEntry(name, roleType) {
+  const normalizedName = sanitizeCharacterDisplayName(name);
+  const lead = roleType === "student_lead";
+  const observer = roleType === "student_observer";
+
+  return createCharacterRosterEntry({
+    name: normalizedName,
+    roleType,
+    role: lead
+      ? `học sinh đại diện cho ${getAudienceDescriptor()} chủ động khám phá bài học`
+      : observer
+        ? "học sinh quan sát, phản hồi ngắn và giúp nhấn thông điệp cuối"
+        : "bạn học đồng hành cùng nhân vật chính trong lúc giải thích",
+    appearance: lead
+      ? `gương mặt sáng, đúng độ tuổi ${getAudienceDescriptor()}, biểu cảm tự tin khi hiểu bài`
+      : observer
+        ? `nét mặt hiền, ánh mắt chú ý, biểu cảm đồng thuận và dễ gần`
+        : `gương mặt thân thiện, biểu cảm linh hoạt, dễ thể hiện cảm xúc thắc mắc rồi hiểu ra`,
+    outfit: observer
+      ? "đồng phục gọn gàng, bảng tên nhỏ, sách vở và bút note màu"
+      : "đồng phục học sinh gọn gàng, ba lô, tập vở và đạo cụ học tập quen thuộc",
+    personality: lead
+      ? "tò mò, chủ động, có nhịp chuyển từ thắc mắc sang tự tin"
+      : observer
+        ? "điềm tĩnh, biết lắng nghe, tạo cảm giác lớp học thân thiện"
+        : "cởi mở, hoạt bát, nói ngắn gọn và phản hồi tự nhiên",
+    voiceStyle: lead
+      ? `giọng ${state.project.voice}, rõ chữ, gần gũi và có điểm nhấn khi chốt ý`
+      : observer
+        ? `giọng ${state.project.voice}, mềm và ngắn câu`
+        : `giọng ${state.project.voice}, tự nhiên, tạo cảm giác đối thoại thật`,
+    scenePurpose: lead
+      ? "Đại diện cho người xem đặt câu hỏi, theo dõi diễn tiến và là điểm neo cảm xúc của video."
+      : observer
+        ? "Bổ sung phản ứng lớp học, giúp cảnh đông vui nhưng vẫn không chiếm vai chính."
+        : "Tạo đối thoại đối xứng để nhân vật chính hoặc thầy cô có điểm bám giải thích.",
+  });
+}
+
+function buildTeacherRosterEntry(name) {
+  return createCharacterRosterEntry({
+    name,
+    roleType: "teacher",
+    role: `giáo viên hướng dẫn giúp ${getAudienceDescriptor()} hiểu nhanh và nhớ lâu`,
+    appearance: "diện mạo chỉn chu, ánh mắt điềm tĩnh, tác phong rõ ràng và đáng tin cậy",
+    outfit: "áo sơ mi hoặc vest tối giản, bảng viết, bút lông và tài liệu minh họa trên tay",
+    personality: "bình tĩnh, logic, biết chốt từng ý ngắn để học sinh dễ theo",
+    voiceStyle: `giọng ${state.project.voice}, mạch lạc, chắc nhịp và giàu tính hướng dẫn`,
+    scenePurpose: "Xuất hiện ở những đoạn cần giải thích trọng tâm, xác nhận đáp án hoặc chốt thông điệp bài học.",
+  });
+}
+
+function buildCharacterPromptLock(member) {
+  return [
+    `${member.name}, ${member.role}.`,
+    `Ngoại hình khóa: ${member.appearance}.`,
+    `Trang phục cố định: ${member.outfit}.`,
+    `Tính cách và biểu cảm: ${member.personality}.`,
+    `Giọng thể hiện: ${member.voiceStyle}.`,
+    `Luôn giữ cùng gương mặt, kiểu tóc, bảng màu trang phục và đạo cụ ở mọi cảnh.`,
+  ].join(" ");
+}
+
+function inferCharacterSceneAppearances(name, roleType) {
+  const matchedScenes = state.scenes
+    .map((scene, index) => {
+      return scene.cast.includes(name) ? `Cảnh ${index + 1}` : null;
+    })
+    .filter(Boolean);
+
+  if (matchedScenes.length) {
+    return matchedScenes;
+  }
+
+  if (roleType === "teacher" || roleType === "mentor") {
+    return state.scenes.length > 1 ? ["Cảnh 2", `Cảnh ${state.scenes.length}`] : ["Cảnh 1"];
+  }
+
+  if (roleType === "student_observer") {
+    return state.scenes.length >= 3 ? ["Cảnh 1", "Cảnh 3"] : ["Cảnh 1"];
+  }
+
+  return state.scenes.length ? ["Cảnh 1", `Cảnh ${Math.max(1, Math.min(2, state.scenes.length))}`] : ["Cảnh 1"];
+}
+
+function extractCharacterNamesFromScenes() {
+  const genericFragments = [
+    "ban dong hanh",
+    "nguoi dan chuyen",
+    "giao vien huong dan",
+    "ban hoc",
+    "nhom lop",
+    "nguoi quan sat",
+  ];
+
+  const names = state.scenes.flatMap((scene) =>
+    String(scene.cast || "")
+      .split(",")
+      .map((item) => sanitizeCharacterDisplayName(item))
+      .filter((item) => {
+        if (!item) {
+          return false;
+        }
+        const normalized = toAsciiSearchText(item);
+        return (
+          !genericFragments.some((fragment) => normalized.includes(fragment)) &&
+          !normalized.includes("nhan vat") &&
+          !normalized.includes("vai phu")
+        );
+      })
+  );
+
+  return [...new Set(names)].slice(0, 6);
+}
+
+function pickSupportingStudentNames(detectedNames, leadName) {
+  const fallback = ["Bình", "Mai", "Lan", "An", "Linh", "Phong"];
+  const pool = [...detectedNames, ...fallback].map(sanitizeCharacterDisplayName).filter(Boolean);
+  const unique = [];
+
+  pool.forEach((name) => {
+    if (name !== leadName && !unique.includes(name) && !looksLikeTeacherName(name)) {
+      unique.push(name);
+    }
+  });
+
+  return unique.length ? unique : fallback.slice(0, 3);
+}
+
+function inferTeacherName() {
+  const detected = extractCharacterNamesFromScenes().find((name) => looksLikeTeacherName(name));
+  if (detected) {
+    return detected;
+  }
+
+  return topicMatches(["ngu van", "lich su", "van hoc"]) ? "Cô Linh" : "Thầy Tuấn";
+}
+
+function looksLikeTeacherName(name) {
+  const normalized = toAsciiSearchText(name);
+  return normalized.startsWith("thay ") || normalized.startsWith("co ");
+}
+
+function sanitizeCharacterDisplayName(name) {
+  const safe = cleanupSentence(String(name || ""));
+  return safe.replace(/^(ban|nhan vat)\s+/i, "").trim();
+}
+
+function inferCharacterPresetIdFromCurrentProject() {
+  const source = toAsciiSearchText(
+    [
+      state.project.topic,
+      state.project.objective,
+      state.project.tone,
+      state.project.narrationMode,
+      state.script.title,
+      state.script.content,
+    ].join(" ")
+  );
+
+  if (
+    source.includes("mc") ||
+    source.includes("dan chuong trinh") ||
+    (state.project.format.includes("TikTok") && state.project.tone === "Truyền cảm hứng")
+  ) {
+    return "mc";
+  }
+
+  if (
+    source.includes("co van") ||
+    source.includes("dinh huong") ||
+    source.includes("ky nang") ||
+    source.includes("dong hanh")
+  ) {
+    return "mentor";
+  }
+
+  if (
+    source.includes("thay") ||
+    source.includes("co giao") ||
+    source.includes("giao vien") ||
+    state.project.narrationMode === "Giải thích bài học" ||
+    state.project.tone === "Nghiêm túc, học thuật"
+  ) {
+    return "teacher";
+  }
+
+  if (
+    source.includes("hoc sinh") ||
+    source.includes("vuot kho") ||
+    source.includes("hanh trinh") ||
+    state.project.audience === "THCS" ||
+    state.project.audience === "THPT"
+  ) {
+    return "student";
+  }
+
+  return "teacher";
+}
+
+function inferCharacterName(presetId) {
+  if (presetId === "teacher") {
+    return topicMatches(["ngu van", "lich su", "van hoc"]) ? "Cô Linh" : "Thầy Tuấn";
+  }
+
+  if (presetId === "student") {
+    if (state.project.audience === "Tiểu học") {
+      return "Bé Na";
+    }
+    if (state.project.audience === "THPT") {
+      return "Bạn Khánh";
+    }
+    return "Bạn Minh";
+  }
+
+  if (presetId === "mentor") {
+    return "Cô Hạnh";
+  }
+
+  return "MC Khánh";
+}
+
+function buildGeneratedCharacterRole(presetId) {
+  const audienceText = getAudienceDescriptor();
+
+  if (presetId === "teacher") {
+    return `giáo viên dẫn dắt bài học dành cho ${audienceText}`;
+  }
+
+  if (presetId === "student") {
+    return `nhân vật trung tâm đại diện cho ${audienceText} khám phá nội dung chính`;
+  }
+
+  if (presetId === "mentor") {
+    return `cố vấn đồng hành giúp ${audienceText} hiểu và áp dụng bài học`;
+  }
+
+  return `MC giáo dục dẫn nhịp video ngắn dành cho ${audienceText}`;
+}
+
+function buildGeneratedCharacterAppearance(preset) {
+  const audienceText = getAudienceDescriptor();
+  const styleText = state.project.visualStyle.toLowerCase();
+  const audienceHint =
+    preset.id === "student"
+      ? `đúng độ tuổi ${audienceText}`
+      : `nhận diện phù hợp với ${audienceText}`;
+
+  return `${preset.appearance}, ${audienceHint}, gương mặt rõ trên khung hình, giữ thiết kế ổn định theo phong cách ${styleText}`;
+}
+
+function buildGeneratedCharacterOutfit(preset) {
+  return `${preset.outfit}; thêm ${inferTopicProps()} để nhấn đúng chủ đề`;
+}
+
+function buildGeneratedCharacterPersonality(preset) {
+  const toneText = state.project.tone.toLowerCase();
+  return `${preset.personality}, giữ tinh thần ${toneText}, bám sát mục tiêu ${buildCharacterIntentLine()}`;
+}
+
+function buildGeneratedCharacterVoiceStyle(preset) {
+  if (state.project.dialogueLanguage === "us") {
+    return `phát âm tiếng Anh rõ, tốc độ vừa, vẫn giữ phong thái ${preset.voiceStyle}`;
+  }
+
+  if (state.project.dialogueLanguage === "vnus") {
+    return `giọng ${state.project.voice}, ${preset.voiceStyle}, chuyển mượt giữa câu tiếng Việt và câu tiếng Anh ngắn`;
+  }
+
+  return `giọng ${state.project.voice}, ${preset.voiceStyle}, câu ngắn rõ nhịp cho video`;
+}
+
+function inferTopicProps() {
+  if (topicMatches(["toan", "phep tinh", "khoang cach", "phan so"])) {
+    return "bảng phép tính, bút lông và thước kẻ";
+  }
+
+  if (topicMatches(["hoa", "ly", "sinh", "khoa hoc"])) {
+    return "mô hình minh họa, dụng cụ thí nghiệm và bảng ghi chú";
+  }
+
+  if (topicMatches(["tieng anh", "english", "tu vung"])) {
+    return "flashcard, sổ tay từ vựng và bút highlight";
+  }
+
+  if (topicMatches(["lich su", "dia ly", "ban do"])) {
+    return "bản đồ, hình minh họa và sổ ghi chép";
+  }
+
+  return "sổ tay, bút highlight và tài liệu học tập";
+}
+
+function topicMatches(keywords) {
+  const source = toAsciiSearchText(`${state.project.topic} ${state.script.title}`);
+  return keywords.some((keyword) => source.includes(keyword));
+}
+
+function syncScenesWithCharacterProfile(previousProfile, nextProfile) {
+  state.scenes = state.scenes.map((scene) => {
+    return {
+      ...scene,
+      cast:
+        replaceCharacterReference(scene.cast, previousProfile.name, nextProfile.name) ||
+        nextProfile.name,
+      visual: replaceCharacterReference(
+        replaceCharacterReference(scene.visual, previousProfile.name, nextProfile.name),
+        previousProfile.role,
+        nextProfile.role
+      ),
+    };
+  });
+}
+
+function syncScenesWithCharacterAnalysis(characterAnalysis) {
+  if (!characterAnalysis.length) {
+    return;
+  }
+
+  const lead = characterAnalysis[0];
+  const support = characterAnalysis.find((item) => item.roleType === "student_support") || characterAnalysis[1];
+  const observer =
+    characterAnalysis.find((item) => item.roleType === "student_observer") ||
+    characterAnalysis.find((item) => item.roleType === "student_support" && item !== support) ||
+    characterAnalysis[2];
+  const teacher =
+    characterAnalysis.find((item) => item.roleType === "teacher" || item.roleType === "mentor") ||
+    characterAnalysis.find((item) => item.roleType === "mc");
+
+  state.scenes = state.scenes.map((scene, index) => {
+    const suggestedCast = buildSceneCastFromAnalysis(index, {
+      lead,
+      support,
+      observer,
+      teacher,
+    });
+    const cast = shouldReplaceSceneCast(scene.cast) ? suggestedCast : scene.cast;
+    const dialogue = shouldReplaceSceneDialogue(scene.dialogue)
+      ? buildSceneDialogueFromAnalysis(index, scene.narration, {
+          lead,
+          support,
+          observer,
+          teacher,
+        })
+      : scene.dialogue;
+
+    return {
+      ...scene,
+      cast,
+      dialogue,
+    };
+  });
+}
+
+function replaceCharacterReference(text, previousValue, nextValue) {
+  const safeText = String(text || "");
+  const before = String(previousValue || "").trim();
+  const after = String(nextValue || "").trim();
+
+  if (!safeText || !before || !after || before === after || !safeText.includes(before)) {
+    return safeText;
+  }
+
+  return safeText.split(before).join(after);
+}
+
+function shouldReplaceSceneCast(castText) {
+  const normalized = toAsciiSearchText(castText);
+  return (
+    !normalized ||
+    normalized.includes("ban dong hanh") ||
+    normalized.includes("nguoi dan chuyen") ||
+    normalized.includes("giao vien huong dan") ||
+    normalized.includes("ban hoc") ||
+    normalized.includes("nhom lop") ||
+    normalized.includes("nguoi quan sat")
+  );
+}
+
+function shouldReplaceSceneDialogue(dialogueText) {
+  const normalized = toAsciiSearchText(dialogueText);
+  return (
+    !normalized ||
+    normalized.startsWith("cho cac ban nhe") ||
+    normalized.startsWith("dung roi") ||
+    normalized.startsWith("vay la minh da co dap an")
+  );
+}
+
+function buildSceneCastFromAnalysis(index, roster) {
+  const castSets = [
+    [roster.lead, roster.support, roster.observer],
+    [roster.teacher || roster.lead, roster.lead],
+    [roster.teacher, roster.lead, roster.support, roster.observer],
+    [roster.lead, roster.support],
+  ];
+
+  return castSets[index % castSets.length]
+    .filter(Boolean)
+    .map((item) => item.name)
+    .join(", ");
+}
+
+function buildSceneDialogueFromAnalysis(index, narration, roster) {
+  const sentence = splitIntoSentences(narration || "")[0] || cleanupSentence(narration || "");
+  const leadName = roster.lead?.name || "Nhân vật chính";
+  const supportName = roster.support?.name || "Bạn học";
+  const observerName = roster.observer?.name || supportName;
+  const teacherName = roster.teacher?.name || "Giáo viên";
+  const templates = [
+    `${leadName}: "${sentence}" ${supportName !== leadName ? `${supportName}: "Ừ, mình cùng nhìn vào đây nhé."` : ""}`,
+    `${teacherName}: "Mình tách ý chính ra là sẽ thấy ngay." ${leadName}: "À, em hiểu cách làm rồi ạ."`,
+    `${teacherName}: "Chúng ta chốt kết quả ở đây nhé." ${observerName}: "Nhìn vậy là nhớ lâu hơn nhiều rồi."`,
+    `${leadName}: "Vậy là mình đã nắm được ý quan trọng của cảnh này."`,
+  ];
+  return templates[index % templates.length].trim();
 }
 
 function refineScriptForVoice() {
@@ -1172,6 +2422,13 @@ function refineScriptForVoice() {
 
   const sentences = splitIntoSentences(state.script.content);
   state.script.content = sentences.map((sentence) => sentence.trim()).join("\n\n");
+  state.characterAnalysis = [];
+  state.characterStyleGuide = cloneState(defaultState.characterStyleGuide);
+  lastCharacterAnalysisSignature = "";
+  if (state.scenes.length) {
+    state.scenes = createSceneDraftsFromScriptContent(state.script.content);
+    state.prompts = [];
+  }
   scheduleSave();
   renderAll({ syncInputs: true });
   showToast("Đã chuẩn hóa kịch bản thành nhịp đọc dễ nghe hơn.");
@@ -1179,51 +2436,50 @@ function refineScriptForVoice() {
 
 function clearScript() {
   state.script = { title: "", content: "" };
+  state.characterAnalysis = [];
+  state.characterStyleGuide = cloneState(defaultState.characterStyleGuide);
   state.scenes = [];
   state.prompts = [];
+  lastCharacterAnalysisSignature = "";
   scheduleSave();
   renderAll({ syncInputs: true });
   showToast("Đã xóa kịch bản và các dữ liệu phụ thuộc.");
 }
 
-function generateScenesFromScript() {
+async function generateScenesFromScript() {
+  if (sceneGenerationUi.isActive) {
+    return;
+  }
+
   if (!state.script.content.trim()) {
     showToast("Hãy tạo kịch bản trước khi phân tách cảnh.");
     setStep(1);
     return;
   }
 
-  const profile = getCharacterProfile();
-  const target = getDurationSceneCount(state.project.duration);
-  const sentences = expandToTarget(splitIntoSentences(state.script.content), target);
-  const groups = groupToTarget(sentences, target);
-  const durations = buildSceneDurations(groups.length, getDurationSeconds(state.project.duration));
-  const cameraPresets = [
-    "Wide establishing shot",
-    "Medium shot",
-    "Close-up",
-    "Tracking shot",
-    "Over-shoulder shot",
-  ];
-  const transitionPresets = ["Fade", "Cut", "Speed ramp", "Light wipe", "Soft zoom transition"];
+  setStep(3);
+  setSceneGenerationUiState(true, "Đang tạo storyboard...", 14);
+  await wait(260);
+  setSceneGenerationUiState(true, "Đang tạo storyboard...", 38);
+  await wait(340);
+  setSceneGenerationUiState(true, "Đang tạo storyboard...", 66);
+  await wait(420);
 
-  state.scenes = groups.map((chunk, index) => {
-    const keywords = extractKeywords(chunk).join(", ");
-    return {
-      id: createId("scene"),
-      title: inferSceneTitle(chunk, index),
-      narration: chunk,
-      visual: `${profile.name}, ${profile.role}, ${state.project.visualStyle}, bối cảnh liên quan ${keywords || "chủ đề chính"}`,
-      camera: cameraPresets[index % cameraPresets.length],
-      transition: transitionPresets[index % transitionPresets.length],
-      duration: durations[index],
-    };
-  });
+  state.scenes = createSceneDraftsFromScriptContent(state.script.content);
   state.prompts = [];
   scheduleSave();
   renderAll();
+
+  await wait(220);
+  setSceneGenerationUiState(true, "Đang tạo storyboard...", 90);
+  await wait(220);
+  setSceneGenerationUiState(true, "Storyboard đã sẵn sàng.", 100);
+  renderSceneGenerationState();
+  await wait(220);
+  setSceneGenerationUiState(false, "Đang tạo storyboard...", 0);
+  renderAll();
   setStep(3);
-  showToast("Đã tách kịch bản thành các cảnh có thời lượng.");
+  showToast("Đã tạo phân cảnh từ kịch bản hiện tại.");
 }
 
 function rebalanceScenes() {
@@ -1237,6 +2493,7 @@ function rebalanceScenes() {
   scheduleSave();
   renderSceneStats();
   renderSceneList();
+  renderSceneWorkspace();
   renderPublishPanel();
   showToast("Đã cân lại thời lượng tất cả cảnh.");
 }
@@ -1250,12 +2507,19 @@ function addScene() {
     visual: `${profile.name}, ${state.project.visualStyle}, bối cảnh giáo dục`,
     camera: "Medium shot",
     transition: "Cut",
+    cast: profile.name,
+    setting: "Không gian minh họa cho nội dung cảnh.",
+    directorCue: "Nhấn rõ hành động chính của nhân vật trong cảnh.",
+    dialogue: "Nhân vật nói ngắn gọn ý chính của cảnh này.",
     duration: 5,
   });
   reconcilePrompts();
   scheduleSave();
   renderSceneStats();
   renderSceneList();
+  renderSceneWorkspace();
+  renderScriptScenePackage();
+  renderPromptWorkspace();
   renderPromptList();
   renderPublishPanel();
   showToast("Đã thêm một cảnh mới.");
@@ -1267,13 +2531,16 @@ function removeScene(sceneId) {
   scheduleSave();
   renderSceneStats();
   renderSceneList();
+  renderSceneWorkspace();
+  renderScriptScenePackage();
+  renderPromptWorkspace();
   renderPromptList();
   renderStepper();
   renderPublishPanel();
   showToast("Đã xóa cảnh.");
 }
 
-function generatePromptPack() {
+function legacyGeneratePromptPack() {
   if (!state.scenes.length) {
     showToast("Hãy tạo phân cảnh trước khi tạo prompt.");
     setStep(3);
@@ -1309,6 +2576,158 @@ function generatePromptPack() {
   });
 
   scheduleSave();
+  renderPromptList();
+  renderStepper();
+  renderPublishPanel();
+  const sceneCount = state.scenes.length;
+  const promptCount = sceneCount * 2;
+  const platformLabel = getPlatformLabel(state.project.videoPlatform);
+
+  setStep(4);
+  showToast("Đã tạo gói prompt cho toàn bộ phân cảnh.");
+}
+
+async function legacyGeneratePromptPackAsync() {
+  if (promptGenerationUi.isActive) {
+    return;
+  }
+
+  if (!state.scenes.length) {
+    showToast("Hãy tạo phân cảnh trước khi tạo prompt.");
+    setStep(3);
+    return;
+  }
+
+  setStep(4);
+  setPromptGenerationUiState(true, "Đang phân tích storyboard...", 18);
+  await wait(240);
+  setPromptGenerationUiState(true, "Đang tạo image prompt cho từng shot...", 46);
+  await wait(320);
+  setPromptGenerationUiState(true, "Đang đồng bộ video prompt, dialogue và subtitle...", 76);
+  await wait(360);
+
+  const profile = getCharacterProfile();
+  state.prompts = state.scenes.map((scene) => {
+    const visualKeywords = extractKeywords(scene.narration).join(", ");
+    return {
+      sceneId: scene.id,
+      image: [
+        `${state.project.visualStyle}, educational video frame, consistent character design.`,
+        `${profile.name}, ${profile.role}, ${profile.appearance}.`,
+        `Outfit and props: ${profile.outfit}.`,
+        `Scene intent: ${scene.visual}.`,
+        `Mood: ${profile.personality}. Camera: ${scene.camera}.`,
+        `Keywords: ${visualKeywords || "learning, motivation, classroom"}.`,
+        `High detail, clean composition, no text overlay, no watermark.`,
+      ].join(" "),
+      motion: [
+        `${scene.camera}.`,
+        `Duration around ${scene.duration}s.`,
+        `Transition using ${scene.transition}.`,
+        `Keep the same character proportions, face and wardrobe across the sequence.`,
+        `Emphasize ${visualKeywords || "the core learning moment"}.`,
+      ].join(" "),
+      voice: buildSceneVoicePrompt(scene),
+      subtitle: buildSubtitle(scene.narration),
+      negative:
+        "blurry, low detail, extra fingers, duplicate face, bad anatomy, broken hands, text, watermark, logo, distorted eyes",
+    };
+  });
+
+  scheduleSave();
+  renderAll();
+  await wait(220);
+  setPromptGenerationUiState(true, "Prompt pack đã sẵn sàng.", 100);
+  renderPromptGenerationState();
+  await wait(220);
+  setPromptGenerationUiState(false, "Đang tạo prompts...", 0);
+  renderPromptWorkspace();
+  renderPromptList();
+  renderStepper();
+  renderPublishPanel();
+  setStep(4);
+  showToast("Đã tạo gói prompt cho toàn bộ phân cảnh.");
+}
+
+async function generatePromptPack() {
+  if (promptGenerationUi.isActive) {
+    return;
+  }
+
+  if (!state.scenes.length) {
+    showToast("Hãy tạo phân cảnh trước khi tạo prompt.");
+    setStep(3);
+    return;
+  }
+
+  const sceneCount = state.scenes.length;
+  const promptCount = sceneCount * 2;
+  const platformLabel = getPlatformLabel(state.project.videoPlatform);
+
+  setStep(4);
+  setPromptGenerationUiState(
+    true,
+    `Đang tạo ${sceneCount} cặp prompt...`,
+    18,
+    `💡 Đang nhúng toàn bộ Character Bible vào ${sceneCount} shot... (${promptCount} prompts)`
+  );
+  await wait(240);
+  setPromptGenerationUiState(
+    true,
+    `Đang tạo ${sceneCount} cặp prompt...`,
+    46,
+    `🎬 Đang khóa image prompt và video prompt theo chuẩn ${platformLabel} cho ${sceneCount} shot...`
+  );
+  await wait(320);
+  setPromptGenerationUiState(
+    true,
+    `Đang tạo ${sceneCount} cặp prompt...`,
+    76,
+    `🗣️ Đang đồng bộ dialogue, subtitle và negative prompt... (${promptCount} prompts)`
+  );
+  await wait(360);
+
+  const profile = getCharacterProfile();
+  state.prompts = state.scenes.map((scene) => {
+    const visualKeywords = extractKeywords(scene.narration).join(", ");
+    return {
+      sceneId: scene.id,
+      image: [
+        `${state.project.visualStyle}, educational video frame, consistent character design.`,
+        `${profile.name}, ${profile.role}, ${profile.appearance}.`,
+        `Outfit and props: ${profile.outfit}.`,
+        `Scene intent: ${scene.visual}.`,
+        `Mood: ${profile.personality}. Camera: ${scene.camera}.`,
+        `Keywords: ${visualKeywords || "learning, motivation, classroom"}.`,
+        `High detail, clean composition, no text overlay, no watermark.`,
+      ].join(" "),
+      motion: [
+        `${scene.camera}.`,
+        `Duration around ${scene.duration}s.`,
+        `Transition using ${scene.transition}.`,
+        `Keep the same character proportions, face and wardrobe across the sequence.`,
+        `Emphasize ${visualKeywords || "the core learning moment"}.`,
+      ].join(" "),
+      voice: buildSceneVoicePrompt(scene),
+      subtitle: buildSubtitle(scene.narration),
+      negative:
+        "blurry, low detail, extra fingers, duplicate face, bad anatomy, broken hands, text, watermark, logo, distorted eyes",
+    };
+  });
+
+  scheduleSave();
+  renderAll();
+  await wait(220);
+  setPromptGenerationUiState(
+    true,
+    `Đã tạo xong ${sceneCount} cặp prompt.`,
+    100,
+    `✅ ${promptCount} prompt đã sẵn sàng để sang bước sản xuất.`
+  );
+  renderPromptGenerationState();
+  await wait(220);
+  setPromptGenerationUiState(false, "Đang tạo prompts...", 0, buildPromptGenerationDefaultDetail());
+  renderPromptWorkspace();
   renderPromptList();
   renderStepper();
   renderPublishPanel();
@@ -1353,10 +2772,14 @@ function buildMarkdownExport() {
           return [
             `### Cảnh ${index + 1}: ${scene.title}`,
             `- Thời lượng: ${scene.duration}s`,
+            `- Nhân vật: ${scene.cast || "Không có"}`,
+            `- Bối cảnh: ${scene.setting || "Không có"}`,
             `- Hình ảnh: ${scene.visual}`,
             `- Camera: ${scene.camera}`,
             `- Chuyển cảnh: ${scene.transition}`,
             `- Lời dẫn: ${scene.narration}`,
+            `- Gợi ý đạo diễn: ${scene.directorCue || "Không có"}`,
+            `- Thoại mẫu: ${scene.dialogue || "Không có"}`,
           ].join("\n");
         })
         .join("\n\n")
@@ -1376,6 +2799,32 @@ function buildMarkdownExport() {
         })
         .join("\n\n")
     : "_Chưa có gói prompt_";
+
+  const characterAnalysisBlock = state.characterAnalysis.length
+    ? state.characterAnalysis
+        .map((item, index) => {
+          return [
+            `### Nhân vật ${index + 1}: ${item.name}`,
+            `- Vai trò: ${item.role}`,
+            `- Ngoại hình: ${item.appearance}`,
+            `- Trang phục: ${item.outfit}`,
+            `- Tính cách: ${item.personality}`,
+            `- Giọng nói: ${item.voiceStyle}`,
+            `- Nhiệm vụ trong video: ${item.scenePurpose}`,
+            `- Xuất hiện ở: ${item.scenes.join(", ") || "Chưa gắn cảnh"}`,
+            `- Prompt khóa: ${item.promptLock}`,
+          ].join("\n");
+        })
+        .join("\n\n")
+    : "_Chưa có Character Bible chi tiết_";
+
+  const styleGuideBlock = state.characterStyleGuide.tags.length
+    ? [
+        `- Tags: ${state.characterStyleGuide.tags.join(" | ")}`,
+        `- Nên làm: ${state.characterStyleGuide.positive.join(" / ")}`,
+        `- Tránh làm: ${state.characterStyleGuide.negative.join(" / ")}`,
+      ].join("\n")
+    : "_Chưa có style guide nhân vật_";
 
   return [
     `# ${state.script.title.trim() || "Brief Sản Xuất Video Giáo Dục AI"}`,
@@ -1406,6 +2855,12 @@ function buildMarkdownExport() {
     `- Trang phục: ${profile.outfit}`,
     `- Tính cách: ${profile.personality}`,
     `- Giọng nói: ${profile.voiceStyle}`,
+    "",
+    "### Character Bible Chi tiết",
+    characterAnalysisBlock,
+    "",
+    "### Style Guide Nhân vật",
+    styleGuideBlock,
     "",
     "## 4. Phân cảnh",
     sceneBlock,
@@ -1445,6 +2900,95 @@ function getCharacterProfile() {
   };
 }
 
+function buildCharacterStoryRole(profile) {
+  const objective = cleanupSentence(
+    state.project.objective || "giúp người xem hiểu nhanh ý chính và hành động ngay sau khi xem"
+  );
+  return `${profile.name} được chọn làm gương mặt trung tâm để dẫn dắt video, truyền tải mục tiêu ${objective}.`;
+}
+
+function buildCharacterConsistencyNote(profile) {
+  return `Giữ nguyên khuôn mặt, kiểu tóc, bảng màu trang phục và đạo cụ chủ đạo của ${profile.name} ở mọi cảnh để prompt hình ảnh không bị lệch nhân vật.`;
+}
+
+function buildCharacterIntentLine() {
+  const objective = cleanupSentence(state.project.objective || "");
+  if (objective) {
+    return truncateText(objective, 92);
+  }
+
+  return "giúp người xem hiểu nhanh ý chính và nhớ được thông điệp bài học";
+}
+
+function getAudienceDescriptor() {
+  if (state.project.audience === "Tiểu học") {
+    return "học sinh tiểu học";
+  }
+
+  if (state.project.audience === "Sinh viên") {
+    return "sinh viên";
+  }
+
+  if (state.project.audience === "Giáo viên") {
+    return "giáo viên";
+  }
+
+  if (state.project.audience === "Doanh nghiệp") {
+    return "người học trong doanh nghiệp";
+  }
+
+  return `học sinh ${state.project.audience}`;
+}
+
+function hasLockedCharacterProfile() {
+  return Boolean(
+    state.character.name.trim() &&
+      state.character.role.trim() &&
+      state.character.appearance.trim() &&
+      state.character.outfit.trim() &&
+      state.character.personality.trim() &&
+      state.character.voiceStyle.trim()
+  );
+}
+
+function createSceneDraftsFromScriptContent(scriptContent) {
+  const profile = getCharacterProfile();
+  const target = getDurationSceneCount(state.project.duration);
+  const sentences = expandToTarget(splitIntoSentences(scriptContent), target);
+  const groups = groupToTarget(sentences, target);
+  const durations = buildSceneDurations(groups.length, getDurationSeconds(state.project.duration));
+  const cameraPresets = [
+    "Wide establishing shot",
+    "Medium shot",
+    "Close-up",
+    "Tracking shot",
+    "Over-shoulder shot",
+  ];
+  const transitionPresets = ["Fade", "Cut", "Speed ramp", "Light wipe", "Soft zoom transition"];
+  const settingPresets = [
+    "Mở cảnh tại không gian học tập gần gũi, có nhân vật đang tương tác với vấn đề chính.",
+    "Chuyển sang bối cảnh giải thích rõ hơn bằng hình ảnh, bảng, mô hình hoặc vật thể minh họa.",
+    "Tạo điểm nhấn trực quan bằng kết quả, phản ứng nhân vật và thông điệp chốt lại.",
+  ];
+
+  return groups.map((chunk, index) => {
+    const keywords = extractKeywords(chunk).join(", ");
+    return {
+      id: createId("scene"),
+      title: inferSceneTitle(chunk, index),
+      narration: chunk,
+      visual: `${profile.name}, ${profile.role}, ${state.project.visualStyle}, bối cảnh liên quan ${keywords || "chủ đề chính"}`,
+      camera: cameraPresets[index % cameraPresets.length],
+      transition: transitionPresets[index % transitionPresets.length],
+      duration: durations[index],
+      cast: buildSceneCastLine(index, profile),
+      setting: settingPresets[index % settingPresets.length],
+      directorCue: buildSceneDirectorCue(chunk, index),
+      dialogue: buildSceneDialogueLine({ narration: chunk }, index),
+    };
+  });
+}
+
 function reconcilePrompts() {
   const sceneIds = new Set(state.scenes.map((scene) => scene.id));
   state.prompts = state.prompts.filter((prompt) => sceneIds.has(prompt.sceneId));
@@ -1459,6 +3003,9 @@ function applyProjectPreset(presetId) {
     ...state.project,
     ...preset,
   });
+  state.characterAnalysis = [];
+  state.characterStyleGuide = cloneState(defaultState.characterStyleGuide);
+  lastCharacterAnalysisSignature = "";
   scheduleSave();
   renderAll({ syncInputs: true });
   showToast("Đã nạp nhanh một preset dự án.");
@@ -1470,6 +3017,7 @@ function resetProject() {
     return;
   }
   state = cloneState(defaultState);
+  lastCharacterAnalysisSignature = "";
   saveNow();
   renderAll({ syncInputs: true });
   showToast("Đã làm mới dự án.");
@@ -1480,6 +3028,9 @@ function setStep(index) {
   scheduleSave();
   renderPanels();
   renderStepper();
+  renderSceneWorkspace();
+  renderPromptWorkspace();
+  maybeAutoGenerateCharacter();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -1530,6 +3081,10 @@ function loadState() {
         ...defaultState.character,
         ...(parsed.character || {}),
       },
+      characterAnalysis: Array.isArray(parsed.characterAnalysis)
+        ? parsed.characterAnalysis.map(normalizeCharacterAnalysisEntry).filter(Boolean)
+        : [],
+      characterStyleGuide: normalizeCharacterStyleGuide(parsed.characterStyleGuide),
       scenes: Array.isArray(parsed.scenes) ? parsed.scenes.map(normalizeScene).filter(Boolean) : [],
       prompts: Array.isArray(parsed.prompts) ? parsed.prompts.map(normalizePrompt).filter(Boolean) : [],
     };
@@ -1710,6 +3265,10 @@ function normalizeScene(scene) {
     visual: String(scene.visual || ""),
     camera: String(scene.camera || ""),
     transition: String(scene.transition || ""),
+    cast: String(scene.cast || ""),
+    setting: String(scene.setting || ""),
+    directorCue: String(scene.directorCue || ""),
+    dialogue: String(scene.dialogue || ""),
     duration: clampNumber(scene.duration, 1, maxDurationSeconds),
   };
 }
@@ -1728,6 +3287,42 @@ function normalizePrompt(prompt) {
   };
 }
 
+function normalizeCharacterAnalysisEntry(entry) {
+  if (!entry || typeof entry !== "object") {
+    return null;
+  }
+
+  return {
+    id: String(entry.id || createId("character")),
+    name: String(entry.name || "").trim(),
+    roleType: String(entry.roleType || "").trim(),
+    role: String(entry.role || "").trim(),
+    appearance: String(entry.appearance || "").trim(),
+    outfit: String(entry.outfit || "").trim(),
+    personality: String(entry.personality || "").trim(),
+    voiceStyle: String(entry.voiceStyle || "").trim(),
+    scenePurpose: String(entry.scenePurpose || "").trim(),
+    promptLock: String(entry.promptLock || "").trim(),
+    scenes: Array.isArray(entry.scenes)
+      ? entry.scenes.map((item) => String(item || "").trim()).filter(Boolean)
+      : [],
+    isPrimary: Boolean(entry.isPrimary),
+  };
+}
+
+function normalizeCharacterStyleGuide(styleGuide) {
+  const source = styleGuide && typeof styleGuide === "object" ? styleGuide : {};
+  return {
+    tags: Array.isArray(source.tags) ? source.tags.map((item) => String(item || "").trim()).filter(Boolean) : [],
+    positive: Array.isArray(source.positive)
+      ? source.positive.map((item) => String(item || "").trim()).filter(Boolean)
+      : [],
+    negative: Array.isArray(source.negative)
+      ? source.negative.map((item) => String(item || "").trim()).filter(Boolean)
+      : [],
+  };
+}
+
 function setNestedValue(path, value) {
   if (path.length !== 2) {
     return;
@@ -1736,7 +3331,6 @@ function setNestedValue(path, value) {
 }
 
 function getCompletionStatus() {
-  const profile = getCharacterProfile();
   const promptReady = state.prompts.length > 0 && state.prompts.length === state.scenes.length;
   const base = [
     Boolean(
@@ -1746,7 +3340,7 @@ function getCompletionStatus() {
         state.project.videoPlatform
     ),
     Boolean(state.script.content.trim()),
-    Boolean(profile.name && profile.appearance),
+    hasLockedCharacterProfile(),
     Boolean(state.scenes.length),
     promptReady,
   ];
@@ -1925,6 +3519,69 @@ function buildDialogueLanguageHint() {
     return "Chỉ tiếng Anh: video prompt sẽ chỉ dùng dialogue tiếng Anh, không chèn lời thoại tiếng Việt.";
   }
   return `Chỉ tiếng Việt: video prompt sẽ ưu tiên toàn bộ lời thoại bằng tiếng Việt giọng ${state.project.voice}.`;
+}
+
+function buildSceneCastLine(index, profile) {
+  if (state.characterAnalysis.length) {
+    const lead = state.characterAnalysis[0]?.name || profile.name;
+    const support = state.characterAnalysis[1]?.name || "Bạn đồng hành";
+    const observer = state.characterAnalysis[2]?.name || "Người quan sát";
+    const teacher = state.characterAnalysis.find((item) =>
+      ["teacher", "mentor", "mc"].includes(item.roleType)
+    )?.name;
+    const castSets = [
+      [lead, support, observer],
+      [teacher || lead, lead],
+      [lead, teacher, support],
+    ];
+    return castSets[index % castSets.length].filter(Boolean).join(", ");
+  }
+
+  const supportingCastSets = [
+    [`${profile.name}`, "Bạn đồng hành", "Người dẫn chuyện"],
+    [`${profile.name}`, "Giáo viên hướng dẫn", "Bạn học"],
+    [`${profile.name}`, "Nhóm lớp", "Người quan sát"],
+  ];
+  return supportingCastSets[index % supportingCastSets.length].join(", ");
+}
+
+function buildSceneDirectorCue(text, index) {
+  const keywords = extractKeywords(text).slice(0, 2).join(", ");
+  const cuePresets = [
+    "Chốt câu hook đầu cảnh để kéo người xem vào nội dung ngay lập tức.",
+    "Để nhân vật vừa giải thích vừa chỉ vào chi tiết trực quan để người xem dễ hiểu.",
+    "Nhấn kết quả cuối cùng bằng phản ứng cảm xúc và câu chốt ngắn gọn.",
+  ];
+  const cue = cuePresets[index % cuePresets.length];
+  return keywords ? `${cue} Tập trung vào ${keywords}.` : cue;
+}
+
+function buildSceneDialogueLine(scene, index) {
+  const baseSentence = splitIntoSentences(scene.narration || "")[0] || cleanupSentence(scene.narration || "");
+  if (!baseSentence) {
+    return "Nhân vật nói rõ ý chính của cảnh bằng câu ngắn gọn, dễ nghe.";
+  }
+
+  if (state.characterAnalysis.length) {
+    const lead = state.characterAnalysis[0]?.name || "Nhân vật chính";
+    const support = state.characterAnalysis[1]?.name || "Bạn học";
+    const teacher = state.characterAnalysis.find((item) =>
+      ["teacher", "mentor"].includes(item.roleType)
+    )?.name;
+    const namedTemplates = [
+      `${lead}: "${baseSentence}"`,
+      `${teacher || support}: "Nhìn vào đây là sẽ hiểu ngay." ${lead}: "À, ra là vậy!"`,
+      `${lead}: "Vậy là mình chốt được ý chính rồi." ${support}: "Ừ, giờ thì dễ nhớ hơn nhiều."`,
+    ];
+    return namedTemplates[index % namedTemplates.length];
+  }
+
+  const dialogueTemplates = [
+    `Cho các bạn nhé: ${baseSentence}`,
+    `Đúng rồi, mình nhìn vào đây là sẽ hiểu ngay: ${baseSentence}`,
+    `Vậy là mình đã có đáp án rồi: ${baseSentence}`,
+  ];
+  return dialogueTemplates[index % dialogueTemplates.length];
 }
 
 function buildSceneVoicePrompt(scene) {
@@ -2208,6 +3865,17 @@ function ensureAllowedValue(value, allowedValues, fallback) {
   return allowedValues.includes(value) ? value : fallback;
 }
 
+function buildSceneDurationHint() {
+  const presets = {
+    veo3: "4-8 giây",
+    sora2: "6-12 giây",
+    seedance2: "5-10 giây",
+    "grok-imagine": "4-8 giây",
+  };
+
+  return presets[state.project.videoPlatform] || "4-8 giây";
+}
+
 function getPlatformLabel(platformId) {
   const platform = videoPlatforms.find((item) => item.id === platformId);
   return platform ? platform.name : "Veo3";
@@ -2223,6 +3891,12 @@ function stripFileExtension(filename) {
 
 function cloneState(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function wait(milliseconds) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
 }
 
 function clampNumber(value, min, max) {

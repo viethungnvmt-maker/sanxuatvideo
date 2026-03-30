@@ -223,6 +223,12 @@ const defaultLoginAccounts = [
     displayName: "VIETHUNG",
     role: "Quan tri he thong",
   },
+  {
+    username: "nhungnguyenthcbq@gmail.com",
+    password: "123456",
+    displayName: "nhungnguyenthcbq@gmail.com",
+    role: "Nguoi dung",
+  },
 ];
 
 const defaultState = {
@@ -1557,12 +1563,15 @@ function saveAccounts(accounts) {
 
 function ensureDefaultAccount(accounts) {
   const normalizedAccounts = Array.isArray(accounts) ? accounts : [];
-  const defaultAccount = normalizeAccount(defaultLoginAccounts[0]);
+  const normalizedDefaultAccounts = defaultLoginAccounts
+    .map(normalizeAccount)
+    .filter(Boolean);
+  const defaultUsernames = new Set(normalizedDefaultAccounts.map((account) => account.username));
   const remainingAccounts = normalizedAccounts.filter(
-    (account) => account.username !== defaultAccount.username
+    (account) => !defaultUsernames.has(account.username)
   );
 
-  return [defaultAccount, ...remainingAccounts].filter(Boolean);
+  return [...normalizedDefaultAccounts, ...remainingAccounts].filter(Boolean);
 }
 
 function loadAuthState() {
